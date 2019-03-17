@@ -4,6 +4,60 @@ const CryptoJS = require('crypto-js');
 const JSZip = require('jszip');
 const FileSaver = require('file-saver')
 
+
+/*  SOME HELPER FUNCTION */
+const dataUrlToBlob = (dataURI) => {
+  var byteString = atob(dataURI.split(',')[1]);
+  var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+  var arrayBuffer = new ArrayBuffer(byteString.length);
+  var _ia = new Uint8Array(arrayBuffer);
+  for (var i = 0; i < byteString.length; i++) {
+      _ia[i] = byteString.charCodeAt(i);
+  }
+  var dataView = new DataView(arrayBuffer);
+  var blob = new Blob([dataView], { type: mimeString });
+  return blob;
+}
+
+const sEncrypt = (mess, key, cipherType) => {
+  let b64 = null;
+  if (cipherType === 'des'){
+    b64 = CryptoJS.DES.encrypt(mess, key).toString();
+  }
+  else if (cipherType === 'aes'){
+    b64 = CryptoJS.AES.encrypt(mess, key).toString();
+  }
+  else if (cipherType === 'rsa') {
+    // TO BE CONTINUE 
+  }
+  let e64 = CryptoJS.enc.Base64.parse(b64);
+  let eHex = e64.toString(CryptoJS.enc.Hex);
+  return eHex;
+}
+
+const getMD5 = (mess) => {
+  return CryptoJS.MD5(mess).toString();
+}
+
+const sDecrypt = (cipher, key, cipherType) => {
+  let reb64 = CryptoJS.enc.Hex.parse(cipher);
+  let bytes = reb64.toString(CryptoJS.enc.Base64);
+  let decrypt = null;
+  if (cipherType === 'des'){
+    decrypt = CryptoJS.DES.decrypt(bytes, key);
+  }
+  else if (cipherType === 'aes'){
+    decrypt = CryptoJS.AES.decrypt(bytes, key);
+  }
+  else if (cipherType === 'rsa') {
+    // TO BE CONTINUE 
+  }
+  let plain = null;
+  if (decrypt !== null)
+    plain = decrypt.toString(CryptoJS.enc.Utf8);
+  return plain;
+}
+
 class MainForm extends React.Component {
     constructor(props){
         super(props);
@@ -12,19 +66,27 @@ class MainForm extends React.Component {
             cipher: '',
             key: '',
             isNeedKey: true,
-            contentFileToEncrypt: '',
+            contentFileToProcess: '',
+            nameFileIsProcessing: '',
             contentKeyFile: '',
             hasRes: false,
             cipherType: 'des',
             isEncrypt: true,
+            resBlobToDownload: null,
         }
-        this.onPlainTextChange = this.onPlainTextChange.bind(this)  
-        this.onKeyChange = this.onKeyChange.bind(this)  
-        this.onBtnSubmitClick = this.onBtnSubmitClick.bind(this)  
-        this.handleMessFileChosen = this.handleMessFileChosen.bind(this) 
-        this.handleKeyFileChosen = this.handleKeyFileChosen.bind(this)
-        this.onCipherTypeChange = this.onCipherTypeChange.bind(this)
-        this.onChangeIsEncrypt = this.onChangeIsEncrypt.bind(this)
+        this.onPlainTextChange = this.onPlainTextChange.bind(this);  
+        this.onKeyChange = this.onKeyChange.bind(this);  
+        this.onBtnSubmitClick = this.onBtnSubmitClick.bind(this);  
+        this.handleMessFileChosen = this.handleMessFileChosen.bind(this); 
+        this.handleKeyFileChosen = this.handleKeyFileChosen.bind(this);
+        this.onCipherTypeChange = this.onCipherTypeChange.bind(this);
+        this.onChangeIsEncrypt = this.onChangeIsEncrypt.bind(this);
+        this.onDownloadBtnClick = this.onDownloadBtnClick.bind(this);
+    }
+
+    onDownloadBtnClick(){
+      // download
+      FileSaver.saveAs(this.state.resBlobToDownload, 'result');
     }
 
     onChangeIsEncrypt(e){
@@ -81,51 +143,79 @@ class MainForm extends React.Component {
     }
 
     onBtnSubmitClick(){
-        if (this.state.contentKeyFile === '' || this.state.contentFileToEncrypt === ''){
+        if (this.state.contentKeyFile === '' || this.state.contentFileToProcess === ''){
           alert("Please chose both key file and input file to process !!!")
         }
         else {
           const zip = JSZip();
           if (this.state.isEncrypt){
-            // encryption
-            let cipherText = '';
+            // Encryption phase 
+            let cipherText;
+
             if (this.state.cipherType === 'aes'){
-              cipherText = CryptoJS.AES.encrypt(this.state.contentFileToEncrypt, this.state.contentKeyFile).toString()
+              cipherText = sEncrypt(this.state.contentFileToProcess, this.state.contentKeyFile, 'aes');
             } 
+
             else if (this.state.cipherType === 'des'){
-              cipherText = CryptoJS.DES.encrypt(this.state.contentFileToEncrypt, this.state.contentKeyFile).toString()
+              cipherText = sEncrypt(this.state.contentFileToProcess, this.state.contentKeyFile, 'des');
             }
+
             else if (this.state.cipherType === 'rsa'){
-              // cipherText = CryptoJS.algo.
+              // TO BE CONTINUE 
             }
-            zip.file("md5.txt", CryptoJS.MD5(this.state.contentFileToEncrypt).toString())
+
+            /* Form file to download 
+               Result file is zip file, after unzipping, we have two text files:
+               * cipher.txt: ciphertext of file (hex)
+               * md5.txt: md5 hash of origin file, using to check the integrity  */
+            const md5OriginFile  = getMD5(this.state.contentFileToProcess);
+            zip.file("md5.txt", md5OriginFile);
             zip.file("cipher.txt", cipherText)
             zip.generateAsync({type:"blob"})
             .then((content) => {
-              FileSaver.saveAs(content, "example.zip");
               this.setState({
-                hasRes: true
+                resBlobToDownload: content,
+                hasRes: true,
               });
             })
             .catch((err) =>{
-              alert(err)
+                alert(err)
             });    
           }
+
           else {
-            // decryption
-            let md5 = '';
-            let cipherText = ''
-            zip.loadAsync(this.state.contentFileToEncrypt)
+            // Decryption phase 
+            // get base64 from dataURl 
+            let bs64 = this.state.contentFileToProcess.split(',')[1];
+            zip.loadAsync(atob(bs64))
             .then((zip) => {
+                // read file md5.txt to get md5 hash value of origin file 
                 zip.file("md5.txt").async("string")
-                .then((res) => {
-                  md5 = res;
-                  alert(md5)
+                .then((md5) => {
+
+                  // read file cipher.txt to get ciphertext 
                   zip.file("cipher.txt").async("string")
-                  .then((cipher) => {
-                    cipherText = cipher;
-                    let plain = CryptoJS.DES.decrypt(cipherText, this.state.contentKeyFile).toString();
-                    alert(CryptoJS.MD5(plain).toString());
+                  .then((cipherText) => {
+                    let plain = null; 
+                    //decrypt 
+                    if (this.state.cipherType  === 'des'){
+                      plain = sDecrypt(cipherText, this.state.contentKeyFile, 'des');
+                    }
+                    else if (this.state.cipherType  === 'aes'){
+                      plain = sDecrypt(cipherText, this.state.contentKeyFile, 'aes');
+                    }
+                    else if (this.state.cipherType === 'rsa'){
+                      // TO BE CONTINUE 
+                    }
+                    if (plain !== null){
+                      if (md5 === getMD5(plain)) {
+                        alert('Check MD5 hash value is succesfull!');
+                      }
+                      this.setState({
+                        resBlobToDownload: dataUrlToBlob(plain),
+                        hasRes: true,
+                      })
+                    }
                   })
                 })
             })
@@ -141,10 +231,11 @@ class MainForm extends React.Component {
       const fileReader = new FileReader();
       fileReader.onloadend = () => {
         this.setState({
-          contentFileToEncrypt: fileReader.result
+          contentFileToProcess: fileReader.result,
+          hasRes: false
         })
       }
-      fileReader.readAsBinaryString(file)
+      fileReader.readAsDataURL(file)
     };
 
     handleKeyFileChosen(e){
@@ -152,7 +243,8 @@ class MainForm extends React.Component {
       const fileReader = new FileReader();
       fileReader.onloadend = () => {
         this.setState({
-          contentKeyFile: fileReader.result
+          contentKeyFile: fileReader.result,
+          hasRes: false
         })
       }
       fileReader.readAsText(file)
@@ -161,7 +253,7 @@ class MainForm extends React.Component {
     renderDownloadResultButton(){
       if (this.state.hasRes){
         return(
-          <Button  style={{marginLeft: 20}} onClick = {this.onBtnSubmitClick}>Download result file</Button>
+          <Button  style={{marginLeft: 20}} onClick = {this.onDownloadBtnClick}>Download result file</Button>
         )
       }
     }
