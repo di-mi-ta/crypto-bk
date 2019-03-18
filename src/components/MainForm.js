@@ -2,8 +2,8 @@ import React from 'react';
 import { Form, FormGroup, Label, Input, Button} from 'reactstrap';
 const CryptoJS = require('crypto-js');
 const JSZip = require('jszip');
-const FileSaver = require('file-saver')
-
+const FileSaver = require('file-saver');
+const cryptico = require('cryptico');
 
 /*  SOME HELPER FUNCTION */
 const dataUrlToBlob = (dataURI) => {

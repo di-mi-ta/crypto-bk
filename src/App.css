@@ -1,3 +1,11 @@
+* { 
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+}
+
 .row-header{
     margin:0px auto;
     padding:0px auto;
@@ -26,10 +34,6 @@ address{
     font-size:80%;
     margin:0px;
     color:#0f0f0f;
-}
-
-.navbar-dark {
-    background-color: #512DA8;
 }
 
 .page-enter {

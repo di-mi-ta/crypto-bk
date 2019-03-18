@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import Contact from './ContactComponent';
 import Header from './HeaderComponent';
 import Footer from './FooterComponent';
-import MainForm from './MainForm'
+import MainForm from './MainForm';
+import Home from './HomeComponent';
 import { Switch, Route, Redirect, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { postFeedback, loginUser, logoutUser} from '../redux/ActionCreators';
@@ -45,7 +46,12 @@ class Main extends Component {
         <TransitionGroup>
           <CSSTransition key={this.props.location.key} classNames="page" timeout={300}>
             <Switch>
-              <Route path="/" />
+              <Route path="/home" component={() => <Home />} />
+              {/* <Route path="/algorithms" component={AlgorithmPage} />
+              <Route path="/keymgn" component={KeyManagement} />
+              <Route path="/mydrive" component={() => <MyDrive />} />
+              <Route path="/aboutus" component={() => <AboutUs />} />
+              <Route path="/help" component={Help} /> */}
               {/* <Route exact path='/' component={() => <About leaders={this.props.leaders} />} />} /> */}
               <Route exact path="/" component={() => <Contact resetFeedbackForm={this.props.resetFeedbackForm} postFeedback={this.props.postFeedback} />} />
               <Redirect to="/home" />
