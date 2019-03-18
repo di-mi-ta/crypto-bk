@@ -42,11 +42,11 @@ class Main extends Component {
           loginUser={this.props.loginUser} 
           logoutUser={this.props.logoutUser} 
           />   
-        <MainForm/>
+        {/* <MainForm/> */}
         <TransitionGroup>
           <CSSTransition key={this.props.location.key} classNames="page" timeout={300}>
             <Switch>
-              <Route path="/home" component={() => <Home />} />
+              <Route exact path="/home" component={() => <Home />} />
               {/* <Route path="/algorithms" component={AlgorithmPage} />
               <Route path="/keymgn" component={KeyManagement} />
               <Route path="/mydrive" component={() => <MyDrive />} />

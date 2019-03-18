@@ -1,0 +1,42 @@
+.footer {
+    color: white;
+    font-family: 'Abel', sans-serif;
+    background-color: #4682B4;
+}
+
+.footer-container {
+    padding-top: 35px;
+    margin-right: 0;
+    margin-left: 0;
+    max-width: 100%;
+}
+
+.footer .row {
+    padding: 20px 0px;
+}
+
+.footer a {
+    color: white;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: none;
+}
+
+.footer address {
+    color: white;
+}
+
+.footer h2, .footer h5 {
+    font-family: 'Oswald', 'sans-serif';
+    margin-bottom: 10px;
+}
+
+.footer .row:last-child {
+    background-color: #000080;
+}
+
+.social-icons-container {
+    text-align: center;
+}

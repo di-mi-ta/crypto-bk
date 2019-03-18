@@ -1,0 +1,44 @@
+.home-container {
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    color: white;
+    width: 100%;
+    max-width: 100%;
+}
+
+.super-node {
+    font-family: 'Indie Flower', cursive;
+    font-size: 22px;
+    font-weight: 400;
+}
+
+.home-slogan {
+    font-size: 28px;
+    font-weight: 400;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-family: 'Sniglet', cursive;
+}
+
+.react-parallax img{
+    width: 100%;
+}
+
+.btns-container {
+    margin-top: 80px;
+}
+
+.try-link {
+    border-radius: 0;
+    padding: 20px 33px;
+    font-size: 18px;
+    font-family: 'Indle Flower', cursive;
+    border: 2px solid;
+    outline: none;
+}
+
+.try-link:hover {
+    text-decoration: none;
+}
+

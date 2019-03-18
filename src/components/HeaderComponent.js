@@ -83,7 +83,7 @@ class Header extends Component {
                                 <NavItem>
                                     { !this.props.auth.isAuthenticated ?
                                         <Button className="btn-sm btn-sign-in-out" onClick={this.toggleModal}>
-                                            <span className="fa fa-sign-in fa-lg"></span> Login
+                                            Login
                                             {this.props.auth.isFetching ?
                                                 <span className="fa fa-spinner fa-pulse fa-fw"></span>
                                                 : null
@@ -93,7 +93,7 @@ class Header extends Component {
                                         <div>
                                         <div className="navbar-text mr-3">{this.props.auth.user.username}</div>
                                         <Button onClick={this.handleLogout} className="btn-sm btn-sign-in-out">
-                                            <span className="fa fa-sign-out fa-lg"></span> Logout
+                                            Logout
                                             {this.props.auth.isFetching ?
                                                 <span className="fa fa-spinner fa-pulse fa-fw"></span>
                                                 : null
