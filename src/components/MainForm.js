@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, FormGroup, Label, Input, Button} from 'reactstrap';
+import { Form, FormGroup, Label, Input, Button, Progress} from 'reactstrap';
 const CryptoJS = require('crypto-js');
 const JSZip = require('jszip');
 const FileSaver = require('file-saver')
@@ -73,6 +73,7 @@ class MainForm extends React.Component {
             cipherType: 'des',
             isEncrypt: true,
             resBlobToDownload: null,
+            isHiden: false,
         }
         this.onPlainTextChange = this.onPlainTextChange.bind(this);  
         this.onKeyChange = this.onKeyChange.bind(this);  
@@ -259,7 +260,7 @@ class MainForm extends React.Component {
     }
 
     render() {
-        return (
+      return (
         <Form style ={{marginLeft: 20, marginTop: 20}}>
             <FormGroup>
             <Label for="exampleText">Input</Label>
@@ -272,18 +273,18 @@ class MainForm extends React.Component {
             <FormGroup>
             <Label for="exampleFile">Input</Label>
             <Input type="file" 
-                   name="fileMess" 
-                   onChange={this.handleMessFileChosen}/>
+                  name="fileMess" 
+                  onChange={this.handleMessFileChosen}/>
             <Label for="exampleFile">Key</Label>
             <Input type="file" 
-                   name="fileKey" 
-                   accept='.txt' 
-                   onChange={this.handleKeyFileChosen} />
+                  name="fileKey" 
+                  accept='.txt' 
+                  onChange={this.handleKeyFileChosen} />
             </FormGroup>
             <FormGroup check>
             <Label check>
               <Input type="radio" name="isEn" value='enc' checked={this.state.isEncrypt}
-                     onChange = {this.onChangeIsEncrypt}/>
+                    onChange = {this.onChangeIsEncrypt}/>
               {' '}
               Encrypt
             </Label>
@@ -291,7 +292,7 @@ class MainForm extends React.Component {
           <FormGroup check>
             <Label check>
               <Input type="radio" name="isEn" value='dec' checked={!this.state.isEncrypt}
-                     onChange = {this.onChangeIsEncrypt}/>
+                    onChange = {this.onChangeIsEncrypt}/>
               {' '}
               Decrypt
             </Label>
@@ -330,7 +331,7 @@ class MainForm extends React.Component {
             </Label>
           </FormGroup>
         </Form>
-        );
+        ); 
     }
 }
 
