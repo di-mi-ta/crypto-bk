@@ -20,35 +20,3 @@ div.trust p{
 .about {
     margin-top: 50px;
 }
-
-img.circle-img {
-    border: 1px solid transparent;
-    border-radius: 100%;
-}
-
-.membership {
-    margin-bottom: 30px;
-}
-
-.about-us-container .media-heading {
-    font-family: 'Vollkorn', serif;
-    color: #008080;
-    font-size: 22px;
-}
-
-.about-us-container .school {
-    font-size: 15px;
-    font-family: 'Dosis', sans-serif;
-    margin-top: 20px;
-    margin-bottom: 10px;
-    padding-left: 50px;
-}
-
-.about-us-container .role {
-    font-size: 20px;
-    font-family: 'Markazi Text', serif;
-}
-
-.member-cont {
-    margin-top: 100px;
-}
