@@ -73,11 +73,6 @@ class Header extends Component {
                                         About Us
                                     </NavLink>
                                 </NavItem>
-                                <NavItem>
-                                    <NavLink className="nav-link mr-1 small" to="/help">
-                                        Help
-                                    </NavLink>
-                                </NavItem>
                             </Nav>
                             <Nav className="ml-auto" navbar>
                                 <NavItem>

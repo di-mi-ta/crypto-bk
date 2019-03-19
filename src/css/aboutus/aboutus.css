@@ -1,0 +1,22 @@
+.about-us-container {
+    padding: 70px 0;
+}
+
+.about-us-container h2 {
+    font-family: 'Vollkorn', serif;
+    color: #000080;
+}
+
+div.in-about p {
+    font-family: 'Marck Script', cursive;
+    font-size: 18px;
+}
+
+div.trust p{
+    font-family: 'Handlee', cursive;
+    font-size: 18px;
+}
+
+.about {
+    margin-top: 50px;
+}
