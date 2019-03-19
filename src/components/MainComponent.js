@@ -5,6 +5,7 @@ import Footer from './FooterComponent';
 import MainForm from './MainForm';
 import Home from './HomeComponent';
 import About from './AboutUsComponent';
+import { DESAlgorithm, AESAlgorithm, RSAAlgorithm } from './AlgorithmComponent';
 import { Switch, Route, Redirect, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { postFeedback, loginUser, logoutUser} from '../redux/ActionCreators';
@@ -48,7 +49,10 @@ class Main extends Component {
           <CSSTransition key={this.props.location.key} classNames="page" timeout={300}>
             <Switch>
               <Route exact path="/home" component={() => <Home />} />
-              {/* <Route path="/algorithms" component={AlgorithmPage} />
+              <Route exact path="/algorithm/des" component={DESAlgorithm} />
+              <Route exact path="/algorithm/aes" component={AESAlgorithm} />
+              <Route exact path="/algorithm/rsa" component={RSAAlgorithm} />
+              {/* 
               <Route path="/keymgn" component={KeyManagement} />
               <Route path="/mydrive" component={() => <MyDrive />} />
               

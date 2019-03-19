@@ -2,6 +2,17 @@
     background-color:#000080;
 }
 
+.nav-select {
+    padding: 0;
+}
+
+.nav-select button .nav-link {
+    color: #000080 !important;
+    font-weight: bold;
+    padding: 0;
+    font-family: 'Pacifico', cursive;
+}
+
 .home-link {
     font-family: 'Oswald', sans-serif;
     font-size: 16px;

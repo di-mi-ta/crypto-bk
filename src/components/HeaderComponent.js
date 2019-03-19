@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Navbar, NavbarBrand, Nav, NavbarToggler, Collapse, NavItem, Jumbotron,
     Button, Modal, ModalHeader, ModalBody,
-    Form, FormGroup, Input, Label } from 'reactstrap';
+    Form, FormGroup, Input, Label,
+    DropdownToggle, UncontrolledDropdown, DropdownMenu, DropdownItem } from 'reactstrap';
 import { NavLink } from 'react-router-dom';
 import '../css/header/header.css';
 
@@ -53,11 +54,23 @@ class Header extends Component {
                         </NavbarBrand>
                         <Collapse isOpen={this.state.isNavOpen} navbar>
                             <Nav navbar>
-                                <NavItem>
-                                    <NavLink className="nav-link mr-1 small" to="/algorithms">
+                                <UncontrolledDropdown nav inNavbar className="mr-1 nav-select small">
+                                    <DropdownToggle nav caret>
                                         Algorithms
-                                    </NavLink>
-                                </NavItem>
+                                    </DropdownToggle>
+                                    <DropdownMenu>
+                                        <DropdownItem>
+                                            <NavLink className="nav-link mr-1 small" to="/algorithm/des">DES</NavLink>
+                                        </DropdownItem>
+                                        <DropdownItem>
+                                            <NavLink className="nav-link mr-1 small" to="/algorithm/aes">AES</NavLink>
+                                        </DropdownItem>
+                                        <DropdownItem divider />
+                                        <DropdownItem>
+                                            <NavLink className="nav-link mr-1 small" to="/algorithm/rsa">RSA</NavLink>
+                                        </DropdownItem>
+                                    </DropdownMenu>
+                                </UncontrolledDropdown>
                                 <NavItem>
                                     <NavLink className="nav-link mr-1 small" to="/mydrive">
                                         My Drive
