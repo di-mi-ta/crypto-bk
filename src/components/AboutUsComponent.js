@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import '../css/aboutus/aboutus.css';
 // import { Link } from 'react-router-dom';
-import Paper from 'material-ui/Paper';
 
 const inlineStyles = {
     marginBottom: 30,
@@ -13,7 +12,7 @@ const About = () => {
     return (
         <div className="container about-us-container">
             <div className="row col-12">
-                <Paper zDepth={1} style={inlineStyles} className="mission-paper">
+                <div className="mission-paper">
                     <div>
                         <div className="text-center">
                             <h2>- Our Mission -</h2>    
@@ -32,10 +31,10 @@ const About = () => {
                             </p>
                         </div>
                     </div>
-                </Paper>
+                </div>
             </div>
             <div className="row col-12">
-                <Paper zDepth={1} style={inlineStyles}>
+                <div>
                     <div>
                         <div className="text-center membership">
                             <h2>- Contact -</h2>
@@ -44,7 +43,7 @@ const About = () => {
                             
                         </div>
                     </div>
-                </Paper>
+                </div>
             </div>
         </div>
     );

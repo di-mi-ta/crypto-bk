@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Contact from './ContactComponent';
 import Header from './HeaderComponent';
 import Footer from './FooterComponent';
-import MainForm from './MainForm';
+// import MainForm from './MainFormComponent';
 import Home from './HomeComponent';
 import About from './AboutUsComponent';
 import { DESAlgorithm, AESAlgorithm, RSAAlgorithm } from './AlgorithmComponent';

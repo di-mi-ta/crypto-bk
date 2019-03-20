@@ -3,9 +3,7 @@
     margin-bottom: 80px;
 }
 
-.my-toggle label {
-    font-family: 'Pacifico', cursive !important;
-    font-size: 20px;
-    padding-left: 20px !important;
-    color: #000080 !important;
+.tab-content {
+    margin-top: 20px;
 }
+

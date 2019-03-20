@@ -1,159 +1,149 @@
 import React, { Component } from 'react';
 import '../css/algo/algo.css';
-import { Tabs, Tab } from 'material-ui/Tabs';
-import Toggle from 'material-ui/Toggle';
-import SwipeableViews from 'react-swipeable-views';
-
-const styles = {
-    headline: {
-        fontSize: 24,
-        paddingTop: 16,
-        marginBottom: 12,
-        fontWeight: 400,
-    },
-    slide: {
-        padding: 10,
-    },
-    inkbar: {
-        backgroundColor: '#ADFF2F'
-    },
-    itemsContainer: {
-        //backgroundColor: '#4682B4'
-    },
-    toggle: {
-        marginLeft: 10,
-        marginTop: 25,
-    }
-};
+import { Tabs, Radio, Switch, Button } from 'antd';
+import { DESDirectEncryptForm, AESDirectEncryptForm, DESDirectDecryptForm, AESDirectDecryptForm } from './MainFormComponent';
+const TabPane = Tabs.TabPane;
 
 class SuperNodeAlgorithm extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            slideIndex: 0,
-            enc: {
-                fileUp: false,
-                keyFile: false
-            },
-            dec: {
-                fileUp: false,
-                keyFile: false
-            }
+            directDecrypt: false,
+            fileDecrypt: false,
+            mode: 'top',
+            type: '',
+            ref: '',
         };
     }
 
-    handleChange = (value) => {
+    handleModeChange = (e) => {
+        const mode = e.target.value;
+        this.setState({ mode });
+    }
+
+    handleDirectSwitchChange = (checked, event) => {
         this.setState({
-            slideIndex: value,
+            directDecrypt: checked
         });
     }
-    
+
+    handleFileSwitchChange = (checked, event) => {
+        this.setState({
+            fileDecrypt: checked
+        });
+    }
+
+    directCryptoTab() {}
+
+    fileCryptoTab() {}
+
     render() {
+        
         return (
             <div></div>
         );
     }
-    
-    handleEncFileToggle = (event, value) => {
-        if (value) {
-            this.setState({
-                enc: { ...this.state.enc, fileUp: true}
-            });
-        }
-        else {
-            this.setState({
-                enc: { ...this.state.enc, fileUp: false}
-            });
-        }
-    }
 }
 
-class DESAlgorithm extends SuperNodeAlgorithm {
+class SymmetricAlgorithm extends SuperNodeAlgorithm {
+
     render() {
+        console.log("render");
+        const { mode } = this.state;
+        const directTab = this.directCryptoTab();
+        const fileTab = this.fileCryptoTab();
+        const tabPaneStyles = (mode != 'top') ? {marginTop: 20} : null;
+        const extraStyles = (mode === 'left' || mode === 'right') ? {lineHeight: '200px'} : null;
+        const extra =<div style={extraStyles}><Button><a href={this.state.ref}>{this.state.type} Reference</a></Button></div>
         return (
             <div className="container algo-container">
                 <div className="col-12">
-                    <Tabs onChange={this.handleChange} value={this.state.slideIndex} inkBarStyle={styles.inkbar} 
-                        tabItemContainerStyle={styles.itemsContainer}>
-                        <Tab label="Encryption" value={0} />
-                        <Tab label="Decryption" value={1} />
-                    </Tabs>
-                    <SwipeableViews index={this.state.slideIndex} onChangeIndex={this.handleChange}>
-                        <div style={styles.slide}>
-                            <Toggle label="File Encryption" labelPosition="right" style={styles.toggle} className="my-toggle" 
-                                onToggle={this.handleEncFileToggle} thumbStyle={{backgroundColor: '#B0C4DE'}} thumbSwitchedStyle={{backgroundColor: '#000080'}}
-                                trackStyle={{backgroundColor: '#ADD8E6'}} trackSwitchedStyle={{backgroundColor: '#4682B4'}}/>
-                            <div className="enc-process">
-                                { this.state.enc.fileUp ? <div>C++</div> : <div>Java</div> }
+                    <Radio.Group onChange={this.handleModeChange} value={mode} style={{ marginBottom: 8 }}>
+                        <Radio.Button value="top">Top</Radio.Button>
+                        <Radio.Button value="bottom">Bottom</Radio.Button>
+                        <Radio.Button value="left">Left</Radio.Button>
+                        <Radio.Button value="right">Right</Radio.Button>
+                    </Radio.Group>
+                    <Tabs
+                        defaultActiveKey="1"
+                        tabPosition={mode}
+                        tabBarExtraContent={extra}
+                    >
+                        <TabPane tab="Direct Cryptography" key="1" style={tabPaneStyles}>
+                            <span>Decryption: &nbsp;&nbsp;</span> { this.state.directDecrypt ? 
+                                <Switch checkedChildren="DEC" unCheckedChildren="ENC" defaultChecked onChange={this.handleDirectSwitchChange}/> :
+                                <Switch checkedChildren="DEC" unCheckedChildren="ENC" onChange={this.handleDirectSwitchChange}/>}
+                            <div className="tab-content">
+                                {directTab}
                             </div>
-                        </div>
-                        <div style={styles.slide}>
-                            <Toggle label="File Decryption" labelPosition="right" style={styles.toggle} className="my-toggle" 
-                                onToggle={this.handleEncFileToggle} thumbStyle={{backgroundColor: '#B0C4DE'}} thumbSwitchedStyle={{backgroundColor: '#000080'}}
-                                trackStyle={{backgroundColor: '#ADD8E6'}} trackSwitchedStyle={{backgroundColor: '#4682B4'}}/>
-                        </div>
-                    </SwipeableViews>
+                        </TabPane>
+                        <TabPane tab="File Cryptography" key="2" style={tabPaneStyles}>
+                            <span>Decryption: &nbsp;&nbsp;</span> { this.state.fileDecrypt ? 
+                                <Switch checkedChildren="DEC" unCheckedChildren="ENC" defaultChecked onChange={this.handleFileSwitchChange}/> :
+                                <Switch checkedChildren="DEC" unCheckedChildren="ENC" onChange={this.handleFileSwitchChange}/>}
+                            <div className="tab-content">
+                                {fileTab}
+                            </div>
+                        </TabPane>
+                    </Tabs>
                 </div>
             </div>
         );
     }
 }
+class DESAlgorithm extends SymmetricAlgorithm {
 
-class AESAlgorithm extends SuperNodeAlgorithm {
+    constructor(props) {
+        super(props);   
+    }
 
-    render() {
-        return (
-            <div className="container algo-container">
-                <div className="col-12">
-                    <Tabs onChange={this.handleChange} value={this.state.slideIndex} inkBarStyle={styles.inkbar} 
-                        tabItemContainerStyle={styles.itemsContainer}>
-                        <Tab label="Encryption" value={0} />
-                        <Tab label="Descryption" value={1} />
-                    </Tabs>
-                    <SwipeableViews index={this.state.slideIndex} onChangeIndex={this.handleChange}>
-                        <div style={styles.slide}>
-                            slide n°2
-                        </div>
-                        <div style={styles.slide}>
-                            slide n°3
-                        </div>
-                    </SwipeableViews>
-                </div>
-            </div>
-        );
+    componentDidMount() {
+        this.setState({
+            type: 'DES',
+            ref: 'https://en.wikipedia.org/wiki/Data_Encryption_Standard'
+        });
+    }
+
+    directCryptoTab() {
+        if ( !this.state.directDecrypt )
+            return (
+                <DESDirectEncryptForm />
+            );
+        else
+            return (
+                <DESDirectDecryptForm />
+            );
+    }
+}
+
+class AESAlgorithm extends SymmetricAlgorithm {
+    constructor(props) {
+        super(props);
+        
+    }
+
+    componentDidMount() {
+        this.setState({
+            type: 'AES',
+            ref: 'https://en.wikipedia.org/wiki/Advanced_Encryption_Standard'
+        });
+    }
+
+    directCryptoTab() {
+        if ( !this.state.directDecrypt )
+            return (
+                <AESDirectEncryptForm />
+            );
+        else
+            return (
+                <AESDirectDecryptForm />
+            );
     }
 }
 
 class RSAAlgorithm extends SuperNodeAlgorithm {
 
-    render() {
-        return (
-            <div className="container algo-container">
-                <div className="col-12">
-                    <Tabs onChange={this.handleChange} value={this.state.slideIndex} inkBarStyle={styles.inkbar} 
-                        tabItemContainerStyle={styles.itemsContainer}>
-                        <Tab label="Key Generation" value={0} />
-                        <Tab label="Encryption" value={1} />
-                        <Tab label="Descryption" value={2} />
-                    </Tabs>
-                    <SwipeableViews index={this.state.slideIndex} onChangeIndex={this.handleChange}>
-                        <div>
-                            
-                        </div>
-                        <div style={styles.slide}>
-                            slide n°2
-                        </div>
-                        <div style={styles.slide}>
-                            slide n°3
-                        </div>
-                    </SwipeableViews>
-                </div>
-            </div>
-        );
-    }
 }
 
 export { DESAlgorithm, AESAlgorithm, RSAAlgorithm };
-// export AESAlgorithm;
-// export RSAAlgorithm;
