@@ -15,6 +15,5 @@ export const ConfigureStore = () => {
         }),
         applyMiddleware(thunk, logger)
     );
-
     return store;
 }

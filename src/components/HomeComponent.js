@@ -1,58 +1,39 @@
 import React from 'react';
-import { Card, CardImg, CardText, CardBody, CardTitle, CardSubtitle } from 'reactstrap';
-import { Loading } from './LoadingComponent';
-import { baseUrl } from '../shared/baseUrl';
-import { FadeTransform } from 'react-animation-components';
+import { Parallax, Background } from 'react-parallax';
+import { Button } from 'reactstrap'; 
+import { Link } from 'react-router-dom';
+import '../css/home/home.css';
 
-function RenderCard({item, isLoading, errMess}) {
-    if (isLoading) {
-        return(
-            <Loading />
-        );
-    }
-    else if (errMess) {
-        return(
-            <h4>{errMess}</h4>
-        );
-    }
-    else
-        return(
-            <FadeTransform in 
-                transformProps={{
-                    exitTransform: 'scale(0.5) translateY(-50%)'
-                }}>
-                <Card>
-                    <CardImg src={baseUrl + item.image} alt={item.name} />
-                    <CardBody>
-                        <CardTitle>{item.name}</CardTitle>
-                        {item.designation ? <CardSubtitle>{item.designation}</CardSubtitle> : null}
-                        <CardText>{item.description}</CardText>
-                    </CardBody>
-                </Card>
-            </FadeTransform>
-        );
-}
+const inlineStyle = {
+    padding: 25,
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%,-50%)"
+};
+
+// const bg = '/'
 
 function Home(props) {
-    return(
-        <div className="container">
-            <div className="row align-items-start">
-                <div className="col-12 col-md m-1">
-                    <RenderCard item={props.dish} 
-                        isLoading={props.dishesLoading}
-                        errMess={props.dishesErrMess} />
+    return (
+        <div className="container home-container">
+            <Parallax style={{width: "100%"}} strength={15} bgImage={'assets/images/bg3.jpg'} blur={{min: 0, max: 3}}>
+                <div style={{height: 500}}>
+                    <div style={inlineStyle}>
+                        <div className="super-node">
+                            <span>Super-Node Drive</span>
+                        </div>
+                        <div className="home-slogan">
+                            <p>
+                                One must acknowledge with cryptography no amount of violence will ever solve a math problem
+                            </p>
+                        </div>
+                        <div className="btns-container">
+                            <Link className="try-link btn-lg btn-outline-warning" to="/home">Try to Encrypt</Link>
+                        </div>
+                    </div>       
                 </div>
-                <div className="col-12 col-md m-1">
-                    <RenderCard item={props.promotion} 
-                        isLoading={props.promosLoading}
-                        errMess={props.promosErrMess} />
-                </div>
-                <div className="col-12 col-md m-1">
-                    <RenderCard item={props.leader} 
-                        isLoading={props.leaderLoading} 
-                        errMess={props.leaderErrMess} />
-                </div>
-            </div>
+            </Parallax>
         </div>
     );
 }

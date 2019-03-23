@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import Contact from './ContactComponent';
 import Header from './HeaderComponent';
 import Footer from './FooterComponent';
-import MainForm from './MainForm'
+import MainForm from './MainForm';
+import Home from './HomeComponent';
 import { Switch, Route, Redirect, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { postFeedback, loginUser, logoutUser} from '../redux/ActionCreators';
-import { actions } from 'react-redux-form';
+import {loginUser, logoutUser, uploadFile} from '../redux/ActionCreators';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 const mapStateToProps = state => {
@@ -16,10 +16,9 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = (dispatch) => ({
-  resetFeedbackForm: () => { dispatch(actions.reset('feedback'))},
-  postFeedback: (feedback) => dispatch(postFeedback(feedback)),
   loginUser: (creds) => dispatch(loginUser(creds)),
   logoutUser: () => dispatch(logoutUser()),
+  uploadFile: (file, user) => dispatch(uploadFile(file, user))
 });
 
 class Main extends Component {
@@ -41,11 +40,17 @@ class Main extends Component {
           loginUser={this.props.loginUser} 
           logoutUser={this.props.logoutUser} 
           />   
-        <MainForm/>
+        <MainForm auth={this.props.auth} 
+                  uploadFile={this.props.uploadFile}  />
         <TransitionGroup>
           <CSSTransition key={this.props.location.key} classNames="page" timeout={300}>
             <Switch>
-              <Route path="/" />
+              <Route exact path="/home" component={() => <Home />} />
+              {/* <Route path="/algorithms" component={AlgorithmPage} />
+              <Route path="/keymgn" component={KeyManagement} />
+              <Route path="/mydrive" component={() => <MyDrive />} />
+              <Route path="/aboutus" component={() => <AboutUs />} />
+              <Route path="/help" component={Help} /> */}
               {/* <Route exact path='/' component={() => <About leaders={this.props.leaders} />} />} /> */}
               <Route exact path="/" component={() => <Contact resetFeedbackForm={this.props.resetFeedbackForm} postFeedback={this.props.postFeedback} />} />
               <Redirect to="/home" />

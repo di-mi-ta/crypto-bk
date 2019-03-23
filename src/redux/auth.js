@@ -5,12 +5,17 @@ import * as ActionTypes from './ActionTypes';
 // we would also want a util to check if the token is expired.
 export const Auth = (state = {
         isLoading: false,
+        isUploading: false, 
         isAuthenticated: localStorage.getItem('token') ? true : false,
         token: localStorage.getItem('token'),
         user: localStorage.getItem('creds') ? JSON.parse(localStorage.getItem('creds')) : null,
         errMess: null
     }, action) => {
     switch (action.type) {
+        case ActionTypes.UPLOAD_FILE_REQUEST:
+            return {...state,
+                isUploading: true,
+            }
         case ActionTypes.LOGIN_REQUEST:
             return {...state,
                 isLoading: true,
