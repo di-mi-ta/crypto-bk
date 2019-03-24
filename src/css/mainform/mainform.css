@@ -1,0 +1,33 @@
+.steps-content {
+    margin-top: 16px;
+    border: 1px dashed #e9e9e9;
+    border-radius: 6px;
+    background-color: #fafafa;
+    min-height: 200px;
+    text-align: center;
+    padding-top: 80px;
+    padding-bottom: 80px;
+}
+  
+.steps-action {
+    margin-top: 24px;
+}
+
+.steps-content .ant-upload-list-item {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+  width: 30%;
+  background-color: '#e6f7ff' !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ant-upload-list-item-info {
+  background-color: #e6f7ff;
+}
+
+.steps-content .ant-input-password {
+  max-width: 40%;
+}
