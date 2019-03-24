@@ -29,7 +29,7 @@ function Home(props) {
                             </p>
                         </div>
                         <div className="btns-container">
-                            <Link className="try-link btn-lg btn-outline-warning" to="/home">Try to Encrypt</Link>
+                            <Link className="try-link btn-lg btn-outline-warning" to="/algorithm/des">Try to Encrypt</Link>
                         </div>
                     </div>       
                 </div>
