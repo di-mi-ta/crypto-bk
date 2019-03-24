@@ -1,10 +1,203 @@
 import React from 'react';
-import { Form, Input } from 'antd';
+import { Form, Input, Steps, Button, Upload, message, Icon, Row, Col, Select } from 'antd';
+import '../css/mainform/mainform.css';
 const CryptoJS = require('crypto-js');
 const JSZip = require('jszip');
 const FileSaver = require('file-saver');
 const cryptico = require('cryptico');
+// const RSAKey = require('cryptico');
 
+window.alert = () => {};
+
+const { Option, OptGroup } = Select;
+
+class RSAKeyGeneratorForm extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      passPhrase: '',
+      numBits: 512,
+      hasRes: false,
+      resBlobToDownload: null,
+      current: 0
+    }
+    this.handleChangePassphrase = this.handleChangePassphrase.bind(this);
+    this.handleBitLengthChange = this.handleBitLengthChange.bind(this);
+  }
+
+  handleChangePassphrase(e) {
+    const newPass = e.target.value;
+    this.setState({
+      passPhrase: newPass
+    });
+  }
+
+  handleBitLengthChange(value, op) {
+    this.setState({
+      numBits: value
+    });
+  }
+
+  onDownload(){
+    FileSaver.saveAs(this.state.resBlobToDownload, 'keysPair');
+  }
+
+  next() {
+    let { current } = this.state;
+    current++;
+    this.setState({
+      current: current
+    });
+  }
+
+  reset() {
+    //if this.state.current == 3 then...
+    //else pop an notification, ask for comfirmation
+    if (this.state.current == 3) {
+      message.success("고맙습니다");
+    }
+    else {
+    }
+
+    this.setState({
+      current: 0,
+      numBits: 512,
+      passPhrase: '',
+      hasRes: false,
+      resBlobToDownload: null
+    });
+  }
+
+  start() {
+    const { passPhrase, numBits } = this.state;
+    const privateKey = cryptico.generateRSAKey(passPhrase, numBits);
+    const publicKey = cryptico.publicKeyString(privateKey);
+    const zip = JSZip();
+    zip.file("publicKey.txt", publicKey);
+    zip.file("privateKey.txt", JSON.stringify(privateKey.toJSON()));
+    zip.generateAsync({type:"blob"}).then((content) => {
+      this.setState({
+        resBlobToDownload: content,
+        hasRes: true,
+      });
+    }).catch((err) =>{
+        message.error('Fail to generate key: ' + err);
+    });
+  }
+
+  steps(cur) {
+    if (cur == 0) {
+      //Input passphrase
+      return (
+        <React.Fragment>
+          <p>Type your passphrase here and please keep secret it.</p>
+          <Input.Password placeholder="Type PassPhrase" value={this.state.passPhrase} onChange={this.handleChangePassphrase}/>
+        </React.Fragment>
+        
+      );
+    }
+    else if (cur == 1) {
+      //get num bits
+      return (
+        <React.Fragment>
+          <p>Please choose RSA key length. The longer the key, the better the security</p>
+          <Select defaultValue={this.state.numBits} style={{ width: "40%" }} onChange={this.handleBitLengthChange}>
+            <OptGroup label="Medium">
+              <Option value="512">512 bits</Option>
+              <Option value="1024">1024 bits</Option>
+              <Option value="2048">2048 bits</Option>
+            </OptGroup>
+            <OptGroup label="Large">
+              <Option value="4096">4096 bits</Option>
+              <Option value="8192">8192 bits</Option>
+            </OptGroup>
+          </Select>
+        </React.Fragment>
+        
+      );
+      //Upload key file
+    }
+    else if (cur == 2){
+      if ( this.state.hasRes && this.state.resBlobToDownload )
+        message.success("Successfully Encryption");
+      return (
+        <div>
+          <Button type="dashed" onClick={() => this.start() }>
+            <Icon type="rocket" />Generate Keys
+          </Button>
+          <br />
+          <br />
+          {(this.state.hasRes && this.state.resBlobToDownload) ? <p>Your keys pair has been generated successfully. Press Next button to get it.</p> : null}
+        </div>
+      );
+    }
+    else {
+      //download file
+      return (
+        <React.Fragment>
+          <Button type="primary" onClick={() => this.onDownload()}>
+            <Icon type="download" /> Download result
+          </Button>
+          <Icon type="paper-clip" style={{ marginLeft: 8 }}/> <b>keysPair.zip</b>
+        </React.Fragment>
+        
+      );
+    }
+  }
+  
+  buttons(cur) {
+    if (cur == 0) {
+      return (
+        <Button type="primary" onClick={() => this.next()} disabled={this.state.passPhrase == ''} >Next</Button>
+      )
+    }
+    else if (cur == 1) {
+      return (
+        <React.Fragment>
+          <Button type="primary" onClick={() => this.next()}>Next</Button>
+          <Button style={{ marginLeft: 8 }} onClick={() => this.reset()}>Reset</Button>
+        </React.Fragment>
+      );
+    }
+    else if (cur == 2) {
+      return (
+        <React.Fragment>
+          <Button type="primary" onClick={() => this.next()} disabled={!this.state.hasRes || this.state.resBlobToDownload === null}>
+            Next
+          </Button>
+          <Button style={{ marginLeft: 8 }} onClick={() => this.reset()}>Reset</Button>
+        </React.Fragment>
+      );
+    }
+    else {
+      return (
+        <Button type="primary" onClick={() => this.reset()} >Done</Button>
+      )
+    }
+  }
+
+  render() {
+    const { current } = this.state;
+    return (
+      <Row>
+          <Col span={4} offset={2}>
+          <Steps current={current} direction="vertical" size="small">
+            <Step title="PassPhrase" icon={<Icon type="lock" />}/>
+            <Step title="Length" icon={<Icon type="code" />}/>
+            <Step title="Process" icon={<Icon type="rocket" />} />
+            <Step title="Finish" icon={<Icon type="smile-o" />} />
+          </Steps>
+          </Col>
+          <Col span={16}>
+            <div className="steps-content mt-0" style={{ backgroundColor: '#F0FFF0' }}>{this.steps(current)}</div>
+            <div className="steps-action">
+              {this.buttons(current)}
+            </div>
+          </Col>
+      </Row>
+    );
+  }
+}
 class DirectEncryptForm extends React.Component {
   constructor(props) {
     super(props);
@@ -213,6 +406,9 @@ class AESDirectDecryptForm extends DirectDecryptForm {
 class RSADirectEncryptForm extends DirectEncryptForm {
   constructor(props) {
     super(props);
+    this.handlePlainChange = this.handlePlainChange.bind(this);
+    this.handleKeyChange = this.handleKeyChange.bind(this);
+
   }
 
   handlePlainChange(event) {
@@ -224,355 +420,439 @@ class RSADirectEncryptForm extends DirectEncryptForm {
       })
     }
     else {
-      const res = CryptoJS.DES.encrypt(plain, this.state.key)
+      let res = null;
+      try {
+        res = cryptico.encrypt(plain, this.state.key);
+      }
+      catch(e) {
+        message.error("Error encryption, " + e);
+      }
       this.setState({
           plain: plain,
-          cipher: res
+          cipher: res.cipher
       });
     }
   }
 
   handleKeyChange(event) {
     const key = event.target.value;
-    const res = CryptoJS.DES.encrypt(this.state.plain, key)
+    const res = cryptico.encrypt(this.state.plain, key);
     this.setState({
         key: key,
-        cipher: res
+        cipher: res.cipher
     })
   }
 }
 
 class RSADirectDecryptForm extends DirectDecryptForm {
-  
+  constructor(props) {
+    super(props);
+    this.handleCipherChange = this.handleCipherChange.bind(this);
+    this.handleKeyChange = this.handleKeyChange.bind(this);
+  }
+
+  handleCipherChange(event) {
+    const cipher = event.target.value;
+    if (cipher === ''){
+      this.setState({
+        cipher: '',
+        plain: ''
+      })
+    }
+    else {
+      let res = null;
+
+      try {
+        res = cryptico.decrypt(cipher, cryptico.RSAKey.parse(this.state.key));
+      }
+      catch(err) {
+        message.error("Improper private key, " + err);
+      }
+
+      this.setState({
+          cipher: cipher,
+          plain: (res == null) ? '' : res.plaintext
+      });
+    }
+  }
+
+  handleKeyChange(event) {
+    const key = event.target.value;
+    let res = null;
+    try {
+      res = cryptico.decrypt(this.state.cipher, cryptico.RSAKey.parse(key));
+    }
+    catch(err) {
+      message.error("Improper private key, " + err);
+    }
+    this.setState({
+        key: key,
+        plain:(res == null) ? '' : res.plaintext
+    })
+  }
 }
-/*  SOME HELPER FUNCTION */
-// const dataUrlToBlob = (dataURI) => {
-//   var byteString = atob(dataURI.split(',')[1]);
-//   var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-//   var arrayBuffer = new ArrayBuffer(byteString.length);
-//   var _ia = new Uint8Array(arrayBuffer);
-//   for (var i = 0; i < byteString.length; i++) {
-//       _ia[i] = byteString.charCodeAt(i);
-//   }
-//   var dataView = new DataView(arrayBuffer);
-//   var blob = new Blob([dataView], { type: mimeString });
-//   return blob;
-// }
 
-// const sEncrypt = (mess, key, cipherType) => {
-//   let b64 = null;
-//   if (cipherType === 'des'){
-//     b64 = CryptoJS.DES.encrypt(mess, key).toString();
-//   }
-//   else if (cipherType === 'aes'){
-//     b64 = CryptoJS.AES.encrypt(mess, key).toString();
-//   }
-//   else if (cipherType === 'rsa') {
-//     // TO BE CONTINUE 
-//   }
-//   let e64 = CryptoJS.enc.Base64.parse(b64);
-//   let eHex = e64.toString(CryptoJS.enc.Hex);
-//   return eHex;
-// }
+const getMD5 = (mess) => {
+  return CryptoJS.MD5(mess).toString();
+}
 
-// const getMD5 = (mess) => {
-//   return CryptoJS.MD5(mess).toString();
-// }
+const dataUrlToBlob = (dataURI) => {
+  var byteString = atob(dataURI.split(',')[1]);
+  var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+  var arrayBuffer = new ArrayBuffer(byteString.length);
+  var _ia = new Uint8Array(arrayBuffer);
+  for (var i = 0; i < byteString.length; i++) {
+      _ia[i] = byteString.charCodeAt(i);
+  }
+  var dataView = new DataView(arrayBuffer);
+  var blob = new Blob([dataView], { type: mimeString });
+  return blob;
+}
 
-// const sDecrypt = (cipher, key, cipherType) => {
-//   let reb64 = CryptoJS.enc.Hex.parse(cipher);
-//   let bytes = reb64.toString(CryptoJS.enc.Base64);
-//   let decrypt = null;
-//   if (cipherType === 'des'){
-//     decrypt = CryptoJS.DES.decrypt(bytes, key);
-//   }
-//   else if (cipherType === 'aes'){
-//     decrypt = CryptoJS.AES.decrypt(bytes, key);
-//   }
-//   else if (cipherType === 'rsa') {
-//     // TO BE CONTINUE 
-//   }
-//   let plain = null;
-//   if (decrypt !== null)
-//     plain = decrypt.toString(CryptoJS.enc.Utf8);
-//   return plain;
-// }
+const Step = Steps.Step;
 
-// class MainForm extends React.Component {
-//     constructor(props){
-//         super(props);
-//         this.state = {
-//             plain: '',
-//             cipher: '',
-//             key: '',
-//             isNeedKey: true,
-//             contentFileToProcess: '',
-//             nameFileIsProcessing: '',
-//             contentKeyFile: '',
-//             hasRes: false,
-//             cipherType: 'des',
-//             isEncrypt: true,
-//             resBlobToDownload: null,
-//         }
-//         this.onPlainTextChange = this.onPlainTextChange.bind(this);  
-//         this.onKeyChange = this.onKeyChange.bind(this);  
-//         this.onBtnSubmitClick = this.onBtnSubmitClick.bind(this);  
-//         this.handleMessFileChosen = this.handleMessFileChosen.bind(this); 
-//         this.handleKeyFileChosen = this.handleKeyFileChosen.bind(this);
-//         this.onCipherTypeChange = this.onCipherTypeChange.bind(this);
-//         this.onChangeIsEncrypt = this.onChangeIsEncrypt.bind(this);
-//         this.onDownloadBtnClick = this.onDownloadBtnClick.bind(this);
-//     }
+class FileCryptoForm extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      contentFileToProcess: '',
+      curFile: null,
+      flag: 0,
+      contentKeyFile: '',
+      curKeyFile: null,
+      hasRes: false,
+      resBlobToDownload: null,
+      current: 0
+    }
+  }
 
-//     onDownloadBtnClick(){
-//       // download
-//       FileSaver.saveAs(this.state.resBlobToDownload, 'result');
-//     }
+  onDownload(){
+    FileSaver.saveAs(this.state.resBlobToDownload, 'result');
+  }
 
-//     onChangeIsEncrypt(e){
-//       if (e.target.value === 'enc'){
-//         this.setState({
-//           isEncrypt: true
-//         })
-//       }
-//       else {
-//         this.setState({
-//           isEncrypt: false
-//         })
-//       }
-//     }
+  next() {
+    let current = this.state.current;
+    if (current == 0) {
+      
+      const fileReader = new FileReader();
+      fileReader.onloadend = () => {
+        this.setState({
+          contentFileToProcess: fileReader.result,
+          hasRes: false
+        })
+      }
+      fileReader.readAsDataURL(this.state.curFile);
 
-//     onCipherTypeChange(e){
-//       this.setState({
-//         cipherType: e.target.value
-//       })
-//     }
+    }
+    else if (current == 1) {
 
-//     onPlainTextChange(event){
-//         const plain = event.target.value;
-//         if (plain === ''){
-//           this.setState({
-//             plain: '',
-//             cipher: ''
-//           })
-//         }
-//         else {
-//           const res = CryptoJS.DES.encrypt(plain, this.state.key)
-//           this.setState({
-//               plain: plain,
-//               cipher: res
-//           });
-//         }
-//     }
+      const fileReader = new FileReader();
+      fileReader.onloadend = () => {
+        this.setState({
+          contentKeyFile: fileReader.result,
+          hasRes: false
+        })
+      }
+      fileReader.readAsText(this.state.curKeyFile);
+    }
 
-//     onKeyChange(event){
-//       const key = event.target.value;
-//       if (key === ''){
-//         this.setState({
-//           key: '',
-//           cipher: ''
-//         })
-//       }
-//       else {
-//         const res = CryptoJS.DES.encrypt(this.state.plain, key)
-//         this.setState({
-//             key: key,
-//             cipher: res
-//         })
-//       }
-//     }
+    current++;
+    this.setState({
+      current: current
+    });
+  }
 
-//     onBtnSubmitClick(){
-//         if (this.state.contentKeyFile === '' || this.state.contentFileToProcess === ''){
-//           alert("Please chose both key file and input file to process !!!")
-//         }
-//         else {
-//           const zip = JSZip();
-//           if (this.state.isEncrypt){
-//             // Encryption phase 
-//             let cipherText;
+  reset() {
+    //if this.state.current == 3 then...
+    //else pop an notification, ask for comfirmation
+    if (this.state.current == 3) {
+      message.success("고맙습니다");
+    }
+    else {
+    }
 
-//             if (this.state.cipherType === 'aes'){
-//               cipherText = sEncrypt(this.state.contentFileToProcess, this.state.contentKeyFile, 'aes');
-//             } 
+    this.setState({
+      contentFileToProcess: '',
+      curFile: null,
+      flag: -1,
+      contentKeyFile: '',
+      curKeyFile: null,
+      hasRes: false,
+      resBlobToDownload: null,
+      current: 0
+    });
+  }
 
-//             else if (this.state.cipherType === 'des'){
-//               cipherText = sEncrypt(this.state.contentFileToProcess, this.state.contentKeyFile, 'des');
-//             }
+  start() {
+    
+  }
 
-//             else if (this.state.cipherType === 'rsa'){
-//               // TO BE CONTINUE 
-//             }
+  steps(cur) {
+    if (cur == 0) {
+      //Upload file
+      const fileProps = {
+        name: 'mainfile',
+        beforeUpload: (file) => {
+          this.setState({
+            curFile: file
+          });
+          return false;
+        },
+        onRemove: (file) => {
+          this.setState({
+            curFile: null
+          })
+        },
+        disabled: (this.state.curFile !== null)
+      };
+      
+      if (this.state.flag == -1) {
+        fileProps.fileList = [];
+        this.setState({
+          flag: 0
+        });
+      }
 
-//             /* Form file to download 
-//                Result file is zip file, after unzipping, we have two text files:
-//                * cipher.txt: ciphertext of file (hex)
-//                * md5.txt: md5 hash of origin file, using to check the integrity  */
-//             const md5OriginFile  = getMD5(this.state.contentFileToProcess);
-//             zip.file("md5.txt", md5OriginFile);
-//             zip.file("cipher.txt", cipherText)
-//             zip.generateAsync({type:"blob"})
-//             .then((content) => {
-//               this.setState({
-//                 resBlobToDownload: content,
-//                 hasRes: true,
-//               });
-//             })
-//             .catch((err) =>{
-//                 alert(err)
-//             });    
-//           }
+      return (
+        <div>
+          <p>{ this.uploadFileSlogan }</p>
+          <Upload {...fileProps}>
+            <Button>
+              <Icon type="upload" /> Upload your file
+            </Button>
+          </Upload>
+        </div>        
+      );
+    }
+    else if (cur == 1) {
+      const keyProps = {
+        name: 'keyfile',
+        beforeUpload: (file) => {
+          this.setState({
+            curKeyFile: file,
+          });
+          return false;
+        },
+        onRemove: (file) => {
+          this.setState({
+            curKeyFile: null
+          })
+        },
+        disabled: (this.state.curKeyFile !== null),
+      };
 
-//           else {
-//             // Decryption phase 
-//             // get base64 from dataURl 
-//             let bs64 = this.state.contentFileToProcess.split(',')[1];
-//             zip.loadAsync(atob(bs64))
-//             .then((zip) => {
-//                 // read file md5.txt to get md5 hash value of origin file 
-//                 zip.file("md5.txt").async("string")
-//                 .then((md5) => {
+      if (this.state.flag == 0)
+      {  
+        keyProps.fileList = [];
+        this.setState({
+          flag: -1
+        });
+      }
 
-//                   // read file cipher.txt to get ciphertext 
-//                   zip.file("cipher.txt").async("string")
-//                   .then((cipherText) => {
-//                     let plain = null; 
-//                     //decrypt 
-//                     if (this.state.cipherType  === 'des'){
-//                       plain = sDecrypt(cipherText, this.state.contentKeyFile, 'des');
-//                     }
-//                     else if (this.state.cipherType  === 'aes'){
-//                       plain = sDecrypt(cipherText, this.state.contentKeyFile, 'aes');
-//                     }
-//                     else if (this.state.cipherType === 'rsa'){
-//                       // TO BE CONTINUE 
-//                     }
-//                     if (plain !== null){
-//                       if (md5 === getMD5(plain)) {
-//                         alert('Check MD5 hash value is succesfull!');
-//                       }
-//                       this.setState({
-//                         resBlobToDownload: dataUrlToBlob(plain),
-//                         hasRes: true,
-//                       })
-//                     }
-//                   })
-//                 })
-//             })
-//             .catch((err) => {
-//               alert(err);
-//             })
-//           }
-//         }
-//     }
+      return (
+        <div>
+          <p>Upload your key file here.</p>
+          <Upload {...keyProps}>
+            <Button>
+              <Icon type="upload" /> Upload your key
+            </Button>
+          </Upload>
+        </div>
+      );
+      //Upload key file
+    }
+    else if (cur == 2){
+      if ( this.state.hasRes && this.state.resBlobToDownload )
+        message.success("Successfully Encryption");
+      return (
+        <div>
+          <Button type="dashed" size="large" onClick={() => this.start() }>
+            <Icon type="rocket" />Start to Process
+          </Button>
+          <br />
+          <br />
+          {(this.state.hasRes && this.state.resBlobToDownload) ? <p>{this.finishSlogan}</p> : null}
+        </div>
+      );
+    }
+    else {
+      //download file
+      return (
+        <React.Fragment>
+          <Button type="primary" size="large" onClick={() => this.onDownload()}>
+            <Icon type="download" /> Download result
+          </Button>
+          <Icon type="paper-clip" style={{ marginLeft: 8 }}/> <b>{this.endFile}</b>
+        </React.Fragment>
+        
+      );
+    }
+  }
+  
+  buttons(cur) {
+    if (cur == 0) {
+      return (
+        <Button type="primary" onClick={() => this.next()} disabled={this.state.curFile === null}>Next</Button>
+      )
+    }
+    else if (cur == 1) {
+      return (
+        <React.Fragment>
+          <Button type="primary" onClick={() => this.next()} disabled={this.state.curKeyFile === null}>Next</Button>
+          <Button style={{ marginLeft: 8 }} onClick={() => this.reset()}>Reset</Button>
+        </React.Fragment>
+      );
+    }
+    else if (cur == 2) {
+      return (
+        <React.Fragment>
+          <Button type="primary" onClick={() => this.next()} disabled={!this.state.hasRes || this.state.resBlobToDownload === null}>
+            Next
+          </Button>
+          <Button style={{ marginLeft: 8 }} onClick={() => this.reset()}>Reset</Button>
+        </React.Fragment>
+      );
+    }
+    else {
+      return (
+        <Button type="primary" onClick={() => this.reset()} >Done</Button>
+      )
+    }
+  }
 
-//     handleMessFileChosen(e){
-//       const file = e.target.files[0];
-//       const fileReader = new FileReader();
-//       fileReader.onloadend = () => {
-//         this.setState({
-//           contentFileToProcess: fileReader.result,
-//           hasRes: false
-//         })
-//       }
-//       fileReader.readAsDataURL(file)
-//     };
+  render() {
+    const { current } = this.state;
+    return (
+      <div>
+        <Form>
+          <Steps current={current} direction="horizontal">
+            {this.titles.map(title => <Step key={title} title={title} />)}
+          </Steps>
+          <div className="steps-content">{this.steps(current)}</div>
+          <div className="steps-action">
+            {this.buttons(current)}
+          </div>
+        </Form>
+      </div>
+    );
+  }
+}
 
-//     handleKeyFileChosen(e){
-//       const file = e.target.files[0];
-//       const fileReader = new FileReader();
-//       fileReader.onloadend = () => {
-//         this.setState({
-//           contentKeyFile: fileReader.result,
-//           hasRes: false
-//         })
-//       }
-//       fileReader.readAsText(file)
-//     };
+class FileEncryptForm extends FileCryptoForm {
+  constructor(props) {
+    super(props);
+    this.titles = ['Upload file', 'Upload key file', 'Start Encrypting', 'Finish'];
+    this.uploadFileSlogan = 'Upload your file for encryption. If you want to encrypt a folder, please zip it and upload to here.';
+    this.endFile = 'result.zip';
+    this.finishSlogan = 'Your result.zip has been created successfully, please press Next button to download it.';
+  }
 
-//     renderDownloadResultButton(){
-//       if (this.state.hasRes){
-//         return(
-//           <Button  style={{marginLeft: 20}} onClick = {this.onDownloadBtnClick}>Download result file</Button>
-//         )
-//       }
-//     }
+  sEncrypt() {}
 
-//     render() {
-//         return (
-//         <Form style ={{marginLeft: 20, marginTop: 20}}>
-//             <FormGroup>
-//             <Label for="exampleText">Input</Label>
-//             <Input type="textarea" name="text" value = {this.state.plain} onChange = {this.onPlainTextChange}/>
-//             <Label for="exampleText">Key</Label>
-//             <Input type="textarea" name="text" value = {this.state.key} onChange = {this.onKeyChange}/>
-//             <Label for="exampleText">Result</Label>
-//             <Input type="textarea" name="text" value = {this.state.cipher} />
-//             </FormGroup>
-//             <FormGroup>
-//             <Label for="exampleFile">Input</Label>
-//             <Input type="file" 
-//                    name="fileMess" 
-//                    onChange={this.handleMessFileChosen}/>
-//             <Label for="exampleFile">Key</Label>
-//             <Input type="file" 
-//                    name="fileKey" 
-//                    accept='.txt' 
-//                    onChange={this.handleKeyFileChosen} />
-//             </FormGroup>
-//             <FormGroup check>
-//             <Label check>
-//               <Input type="radio" name="isEn" value='enc' checked={this.state.isEncrypt}
-//                      onChange = {this.onChangeIsEncrypt}/>
-//               {' '}
-//               Encrypt
-//             </Label>
-//           </FormGroup>
-//           <FormGroup check>
-//             <Label check>
-//               <Input type="radio" name="isEn" value='dec' checked={!this.state.isEncrypt}
-//                      onChange = {this.onChangeIsEncrypt}/>
-//               {' '}
-//               Decrypt
-//             </Label>
-//           </FormGroup>
-//           <Button onClick = {this.onBtnSubmitClick}> Submit </Button>
-//           {this.renderDownloadResultButton()}
-//           <FormGroup tag="fieldset">
-//           <legend>SYMMETRIC CIPHER</legend>
-//           <FormGroup check>
-//             <Label check>
-//               <Input type="radio" value='des' 
-//                     name="typeCipher" 
-//                     checked={this.state.cipherType === 'des'}
-//                     onChange={this.onCipherTypeChange}/>
-//                 {' '} DES
-//             </Label>
-//           </FormGroup>
-//           <FormGroup check>
-//             <Label check>
-//             <Input type="radio" value='aes' 
-//                     name="typeCipher" 
-//                     checked={this.state.cipherType === 'aes'}
-//                     onChange={this.onCipherTypeChange}/>
-//               {' '}  AES
-//             </Label>
-//           </FormGroup>
-//         </FormGroup>
-//         <legend>ASYMMETRIC CIPHER</legend>
-//           <FormGroup check>
-//             <Label check>
-//             <Input type="radio" value='rsa' 
-//                     name="typeCipher" 
-//                     checked={this.state.cipherType === 'rsa'}
-//                     onChange={this.onCipherTypeChange}/>
-//               {' '} RSA 
-//             </Label>
-//           </FormGroup>
-//         </Form>
-//         );
-//     }
-// }
+  start() {
+    const zip = JSZip();
+    let cipherText;
+    cipherText = this.sEncrypt();
+    const md5OriginFile  = getMD5(this.state.contentFileToProcess);
+    zip.file("md5.txt", md5OriginFile);
+    zip.file("cipher.txt", cipherText)
+    zip.generateAsync({type:"blob"}).then((content) => {
+      this.setState({
+        resBlobToDownload: content,
+        hasRes: true,
+      });
+    }).catch((err) =>{
+        message.error('Fail to process: ' + err);
+    });
+  }
+}
+class DESFileEncryptForm extends FileEncryptForm {
+  
+  sEncrypt() {
+    const b64 = CryptoJS.DES.encrypt(this.state.contentFileToProcess, this.state.contentKeyFile).toString();
+    const e64 = CryptoJS.enc.Base64.parse(b64);
+    return e64.toString(CryptoJS.enc.Hex);
+  }
+}
 
-// export default MainForm;
-export { DESDirectEncryptForm, AESDirectEncryptForm, DESDirectDecryptForm, AESDirectDecryptForm };
+class AESFileEncryptForm extends FileEncryptForm {
+  sEncrypt() {
+    const b64 = CryptoJS.AES.encrypt(this.state.contentFileToProcess, this.state.contentKeyFile).toString();
+    const e64 = CryptoJS.enc.Base64.parse(b64);
+    return e64.toString(CryptoJS.enc.Hex);
+  }
+}
+
+class RSAFileEncryptForm extends FileEncryptForm {
+  sEncrypt() {
+    return cryptico.encrypt(this.state.contentFileToProcess, this.state.contentKeyFile).cipher;
+  }
+}
+
+class FileDecryptForm extends FileCryptoForm {
+  constructor(props) {
+    super(props);
+    this.titles = ['Upload zip file', 'Upload key file', 'Start Decrypting', 'Finish'];
+    this.uploadFileSlogan = 'Upload your zip file for dcryption. That zip must contains two files as cipher and md5 hash.';
+    this.finishSlogan = 'Your result file has been created successfully, please press Next button to download it.';
+    this.endFile = 'result.xyz';
+  }
+
+  sDecrypt(cipher) {}
+
+  start() {
+    const zip = JSZip();
+    let bs64 = this.state.contentFileToProcess.split(',')[1];
+    zip.loadAsync(atob(bs64)).then((zip) => {
+        // read file md5.txt to get md5 hash value of origin file 
+        zip.file("md5.txt").async("string").then((md5) => {
+          // read file cipher.txt to get ciphertext 
+          zip.file("cipher.txt").async("string").then((cipherText) => {
+            const plain = this.sDecrypt(cipherText); 
+            //decrypt 
+            if (plain !== null) {
+              if (md5 === getMD5(plain)) {
+                message.success('Correct MD5 hash value');
+              }
+              this.setState({
+                resBlobToDownload: dataUrlToBlob(plain),
+                hasRes: true,
+              })
+            }
+          })
+        })
+    }).catch((err) => {
+      message.error("Fail to processing " + err);
+    })
+  }
+}
+
+class DESFileDecryptForm extends FileDecryptForm {
+  sDecrypt(cipher) {
+    const reb64 = CryptoJS.enc.Hex.parse(cipher);
+    const bytes = reb64.toString(CryptoJS.enc.Base64);
+    const decrypt = CryptoJS.DES.decrypt(bytes, this.state.contentKeyFile);
+    return (decrypt !== null) ? decrypt.toString(CryptoJS.enc.Utf8) : null;
+  }
+}
+
+class AESFileDecryptForm extends FileDecryptForm {
+  sDecrypt(cipher) {
+    const reb64 = CryptoJS.enc.Hex.parse(cipher);
+    const bytes = reb64.toString(CryptoJS.enc.Base64);
+    const decrypt = CryptoJS.AES.decrypt(bytes, this.state.contentKeyFile);
+    return (decrypt !== null) ? decrypt.toString(CryptoJS.enc.Utf8) : null;
+  }
+}
+
+class RSAFileDecryptForm extends FileDecryptForm {
+  sDecrypt(cipher) {
+    const keyObj = cryptico.RSAKey.parse(this.state.contentKeyFile);
+    const decrypt = cryptico.decrypt(cipher, keyObj);
+    return (decrypt != null) ? decrypt.plaintext : null;
+  }
+}
+
+export { DESDirectEncryptForm, AESDirectEncryptForm, DESDirectDecryptForm, AESDirectDecryptForm, 
+          DESFileEncryptForm, AESFileEncryptForm, DESFileDecryptForm, AESFileDecryptForm,
+          RSADirectDecryptForm, RSADirectEncryptForm, RSAFileEncryptForm, RSAFileDecryptForm, RSAKeyGeneratorForm };
