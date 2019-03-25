@@ -51,9 +51,9 @@ class RSAKeyGeneratorForm extends React.Component {
   }
 
   reset() {
-    //if this.state.current == 3 then...
+    //if this.state.current === 3 then...
     //else pop an notification, ask for comfirmation
-    if (this.state.current == 3) {
+    if (this.state.current === 3) {
       message.success("고맙습니다");
     }
     else {
@@ -86,7 +86,7 @@ class RSAKeyGeneratorForm extends React.Component {
   }
 
   steps(cur) {
-    if (cur == 0) {
+    if (cur === 0) {
       //Input passphrase
       return (
         <React.Fragment>
@@ -96,7 +96,7 @@ class RSAKeyGeneratorForm extends React.Component {
         
       );
     }
-    else if (cur == 1) {
+    else if (cur === 1) {
       //get num bits
       return (
         <React.Fragment>
@@ -117,7 +117,7 @@ class RSAKeyGeneratorForm extends React.Component {
       );
       //Upload key file
     }
-    else if (cur == 2){
+    else if (cur === 2){
       if ( this.state.hasRes && this.state.resBlobToDownload )
         message.success("Successfully Encryption");
       return (
@@ -146,12 +146,12 @@ class RSAKeyGeneratorForm extends React.Component {
   }
   
   buttons(cur) {
-    if (cur == 0) {
+    if (cur === 0) {
       return (
-        <Button type="primary" onClick={() => this.next()} disabled={this.state.passPhrase == ''} >Next</Button>
+        <Button type="primary" onClick={() => this.next()} disabled={this.state.passPhrase === ''} >Next</Button>
       )
     }
-    else if (cur == 1) {
+    else if (cur === 1) {
       return (
         <React.Fragment>
           <Button type="primary" onClick={() => this.next()}>Next</Button>
@@ -159,7 +159,7 @@ class RSAKeyGeneratorForm extends React.Component {
         </React.Fragment>
       );
     }
-    else if (cur == 2) {
+    else if (cur === 2) {
       return (
         <React.Fragment>
           <Button type="primary" onClick={() => this.next()} disabled={!this.state.hasRes || this.state.resBlobToDownload === null}>
@@ -471,7 +471,7 @@ class RSADirectDecryptForm extends DirectDecryptForm {
 
       this.setState({
           cipher: cipher,
-          plain: (res == null) ? '' : res.plaintext
+          plain: (res === null) ? '' : res.plaintext
       });
     }
   }
@@ -487,7 +487,7 @@ class RSADirectDecryptForm extends DirectDecryptForm {
     }
     this.setState({
         key: key,
-        plain:(res == null) ? '' : res.plaintext
+        plain:(res === null) ? '' : res.plaintext
     })
   }
 }
@@ -532,7 +532,7 @@ class FileCryptoForm extends React.Component {
 
   next() {
     let current = this.state.current;
-    if (current == 0) {
+    if (current === 0) {
       
       const fileReader = new FileReader();
       fileReader.onloadend = () => {
@@ -544,7 +544,7 @@ class FileCryptoForm extends React.Component {
       fileReader.readAsDataURL(this.state.curFile);
 
     }
-    else if (current == 1) {
+    else if (current === 1) {
 
       const fileReader = new FileReader();
       fileReader.onloadend = () => {
@@ -563,9 +563,9 @@ class FileCryptoForm extends React.Component {
   }
 
   reset() {
-    //if this.state.current == 3 then...
+    //if this.state.current === 3 then...
     //else pop an notification, ask for comfirmation
-    if (this.state.current == 3) {
+    if (this.state.current === 3) {
       message.success("고맙습니다");
     }
     else {
@@ -588,7 +588,7 @@ class FileCryptoForm extends React.Component {
   }
 
   steps(cur) {
-    if (cur == 0) {
+    if (cur === 0) {
       //Upload file
       const fileProps = {
         name: 'mainfile',
@@ -606,7 +606,7 @@ class FileCryptoForm extends React.Component {
         disabled: (this.state.curFile !== null)
       };
       
-      if (this.state.flag == -1) {
+      if (this.state.flag === -1) {
         fileProps.fileList = [];
         this.setState({
           flag: 0
@@ -624,7 +624,7 @@ class FileCryptoForm extends React.Component {
         </div>        
       );
     }
-    else if (cur == 1) {
+    else if (cur === 1) {
       const keyProps = {
         name: 'keyfile',
         beforeUpload: (file) => {
@@ -641,7 +641,7 @@ class FileCryptoForm extends React.Component {
         disabled: (this.state.curKeyFile !== null),
       };
 
-      if (this.state.flag == 0)
+      if (this.state.flag === 0)
       {  
         keyProps.fileList = [];
         this.setState({
@@ -661,7 +661,7 @@ class FileCryptoForm extends React.Component {
       );
       //Upload key file
     }
-    else if (cur == 2){
+    else if (cur === 2){
       if ( this.state.hasRes && this.state.resBlobToDownload )
         message.success("Successfully Encryption");
       return (
@@ -690,12 +690,12 @@ class FileCryptoForm extends React.Component {
   }
   
   buttons(cur) {
-    if (cur == 0) {
+    if (cur === 0) {
       return (
         <Button type="primary" onClick={() => this.next()} disabled={this.state.curFile === null}>Next</Button>
       )
     }
-    else if (cur == 1) {
+    else if (cur === 1) {
       return (
         <React.Fragment>
           <Button type="primary" onClick={() => this.next()} disabled={this.state.curKeyFile === null}>Next</Button>
@@ -703,7 +703,7 @@ class FileCryptoForm extends React.Component {
         </React.Fragment>
       );
     }
-    else if (cur == 2) {
+    else if (cur === 2) {
       return (
         <React.Fragment>
           <Button type="primary" onClick={() => this.next()} disabled={!this.state.hasRes || this.state.resBlobToDownload === null}>

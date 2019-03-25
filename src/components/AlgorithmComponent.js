@@ -65,7 +65,7 @@ class SymmetricAlgorithm extends SuperNodeAlgorithm {
         const { mode } = this.state;
         const directTab = this.directCryptoTab();
         const fileTab = this.fileCryptoTab();
-        const tabPaneStyles = (mode != 'top') ? {marginTop: 20} : null;
+        const tabPaneStyles = (mode !== 'top') ? {marginTop: 20} : null;
         const extraStyles = (mode === 'left' || mode === 'right') ? {lineHeight: '200px'} : null;
         const extra =<div style={extraStyles}><Button><a href={this.state.ref}>{this.state.type} Reference</a></Button></div>
         return (
@@ -108,7 +108,7 @@ class AssymmetricAlgorithm extends SuperNodeAlgorithm {
         const directTab = this.directCryptoTab();
         const fileTab = this.fileCryptoTab();
         const keyGenerateTab = this.keyGenerateTab();
-        const tabPaneStyles = (mode != 'top') ? {marginTop: 20} : null;
+        const tabPaneStyles = (mode !== 'top') ? {marginTop: 20} : null;
         const extraStyles = (mode === 'left' || mode === 'right') ? {lineHeight: '200px'} : null;
         const extra =<div style={extraStyles}><Button><a href={this.state.ref}>{this.state.type} Reference</a></Button></div>
         return (

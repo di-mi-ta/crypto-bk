@@ -1,12 +1,6 @@
-import React, { Component } from 'react';
+import React from 'react';
 import '../css/aboutus/aboutus.css';
 // import { Link } from 'react-router-dom';
-
-const inlineStyles = {
-    marginBottom: 30,
-    padding: 80,
-    width: "100%"
-};
 
 const About = () => {
     return (
