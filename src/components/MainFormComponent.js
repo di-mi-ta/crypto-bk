@@ -856,18 +856,21 @@ class FileEncryptForm extends FileCryptoForm {
     const zip = JSZip();
     if ( !this.state.isFolder) {
       let cipherText;
+      this.setState({
+        progress: 40
+      });
       cipherText = this.sEncrypt();
       this.setState({
-        progress: 30
+        progress: 60
       });
       const md5OriginFile  = getMD5(this.state.contentFileToProcess);
       this.setState({
-        progress: 50
+        progress: 65
       });
       zip.file("md5.txt", md5OriginFile);
       zip.file("cipher.txt", cipherText);
       this.setState({
-        progress: 80
+        progress: 70
       });
       zip.generateAsync({type:"blob"}).then((content) => {
         this.setState({
@@ -1096,12 +1099,15 @@ class FileDecryptForm extends FileCryptoForm {
     if (!this.state.isFolder) {
       let bs64 = this.state.contentFileToProcess.split(',')[1];
       zip.loadAsync(atob(bs64)).then((zip) => {
+          this.setState({
+            progress: 10
+          });
           // read file md5.txt to get md5 hash value of origin file 
           zip.file("md5.txt").async("string").then((md5) => {
             // read file cipher.txt to get ciphertext 
             zip.file("cipher.txt").async("string").then((cipherText) => {
               this.setState({
-                progress: 20
+                progress: 30
               });
               const plain = this.sDecrypt(cipherText); 
               //decrypt 
