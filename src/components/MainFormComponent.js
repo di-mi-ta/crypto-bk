@@ -5,7 +5,7 @@ const CryptoJS = require('crypto-js');
 const JSZip = require('jszip');
 const FileSaver = require('file-saver');
 const cryptico = require('cryptico');
-// const RSAKey = require('cryptico');
+const isUtf8 = require('isutf8');
 
 window.alert = () => {};
 
@@ -339,26 +339,44 @@ class DESDirectDecryptForm extends DirectDecryptForm {
 
   handleCipherChange(event) {
     const cipher = event.target.value;
-    const reb64 = CryptoJS.enc.Hex.parse(cipher);
-    const bytes = reb64.toString(CryptoJS.enc.Base64);
-    const decrypt = CryptoJS.DES.decrypt(bytes, this.state.key);
-    const res = (decrypt !== null) ? decrypt.toString(CryptoJS.enc.Utf8) : 'Not valid';
     this.setState({
-        cipher: cipher,
-        plain: res
-    });
+      cipher: cipher
+    })
+    try{
+      const reb64 = CryptoJS.enc.Hex.parse(cipher);
+      const bytes = reb64.toString(CryptoJS.enc.Base64);
+      const decrypt = CryptoJS.DES.decrypt(bytes, this.state.key);
+      if (isUtf8(decrypt)){
+        const res = (decrypt !== null) ? decrypt.toString(CryptoJS.enc.Utf8) : '';
+        this.setState({
+            plain: res
+        });
+      }
+    }
+    catch (e){
+      //pass
+    }
   }
 
   handleKeyChange(event) {
     const key = event.target.value;
-    const reb64 = CryptoJS.enc.Hex.parse(this.state.cipher);
-    const bytes = reb64.toString(CryptoJS.enc.Base64);
-    const decrypt = CryptoJS.DES.decrypt(bytes, key);
-    const res = (decrypt !== null) ? decrypt.toString(CryptoJS.enc.Utf8) : 'Not valid';
     this.setState({
-        key: key,
-        plain: res
-    })
+      key: key
+    });
+    try{
+      const reb64 = CryptoJS.enc.Hex.parse(this.state.cipher);
+      const bytes = reb64.toString(CryptoJS.enc.Base64);
+      const decrypt = CryptoJS.DES.decrypt(bytes, key);
+      if (isUtf8(decrypt)){
+        const res = (decrypt !== null) ? decrypt.toString(CryptoJS.enc.Utf8) : '';
+        this.setState({
+            plain: res
+        })
+      }
+    }
+    catch (e){
+      //pass
+    }
   }
 }
 
@@ -371,26 +389,44 @@ class AESDirectDecryptForm extends DirectDecryptForm {
 
   handleCipherChange(event) {
     const cipher = event.target.value;
-    const reb64 = CryptoJS.enc.Hex.parse(cipher);
-    const bytes = reb64.toString(CryptoJS.enc.Base64);
-    const decrypt = CryptoJS.AES.decrypt(bytes, this.state.key);
-    const res = (decrypt !== null) ? decrypt.toString(CryptoJS.enc.Utf8) : 'Not valid';
     this.setState({
-        cipher: cipher,
-        plain: res
-    });
+      cipher: cipher
+    })
+    try{
+      const reb64 = CryptoJS.enc.Hex.parse(cipher);
+      const bytes = reb64.toString(CryptoJS.enc.Base64);
+      const decrypt = CryptoJS.AES.decrypt(bytes, this.state.key);
+      if (isUtf8(decrypt)){
+        const res = (decrypt !== null) ? decrypt.toString(CryptoJS.enc.Utf8) : '';
+        this.setState({
+            plain: res
+        });
+      } 
+    }
+    catch(e){
+      // pass 
+    }
   }
 
   handleKeyChange(event) {
     const key = event.target.value;
-    const reb64 = CryptoJS.enc.Hex.parse(this.state.cipher);
-    const bytes = reb64.toString(CryptoJS.enc.Base64);
-    const decrypt = CryptoJS.AES.decrypt(bytes, key);
-    const res = (decrypt !== null) ? decrypt.toString(CryptoJS.enc.Utf8) : 'Not valid';
     this.setState({
-        key: key,
-        plain: res
-    })
+      key: key
+    });
+    try{
+      const reb64 = CryptoJS.enc.Hex.parse(this.state.cipher);
+      const bytes = reb64.toString(CryptoJS.enc.Base64);
+      const decrypt = CryptoJS.AES.decrypt(bytes, key);
+      if (isUtf8(decrypt)){
+        const res = (decrypt !== null) ? decrypt.toString(CryptoJS.enc.Utf8) : '';
+        this.setState({
+            plain: res
+        })
+      }
+    }
+    catch(e){
+      // pass
+    }
   }
 }
 
@@ -781,11 +817,6 @@ class FileEncryptForm extends FileCryptoForm {
         message.success("Successfully Encryption");
       return (
         <div>
-          <Button type="dashed" size="large" onClick={() => this.start() }>
-            <Icon type="rocket" />Start to Encrypt
-          </Button>
-          <br />
-          <br />
           {(this.state.hasRes && this.state.resBlobToDownload) ? 
             <p>
                Your result.zip has been created successfully, please press Next button to download it.&nbsp; 
@@ -1025,11 +1056,6 @@ class FileDecryptForm extends FileCryptoForm {
         message.success("Successfully Decryption");
       return (
         <div>
-          <Button type="dashed" size="large" onClick={() => this.start() }>
-            <Icon type="rocket" />Start to Decrypt
-          </Button>
-          <br />
-          <br />
           {(this.state.hasRes && this.state.resBlobToDownload) ? 
             <p>
               Your result file has been created successfully, please press Next button to download it.&nbsp;
