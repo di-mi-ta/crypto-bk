@@ -52,13 +52,7 @@ class Main extends Component {
               <Route exact path="/algorithm/des" component={DESAlgorithm} />
               <Route exact path="/algorithm/aes" component={AESAlgorithm} />
               <Route exact path="/algorithm/rsa" component={RSAAlgorithm} />
-              {/* 
-              <Route path="/keymgn" component={KeyManagement} />
-              <Route path="/mydrive" component={() => <MyDrive />} />
-              
-              <Route path="/help" component={Help} /> */}
               <Route exact path="/aboutus" component={() => <About />} />
-              {/* <Route exact path='/' component={() => <About leaders={this.props.leaders} />} />} /> */}
               <Route exact path="/" component={() => <Contact resetFeedbackForm={this.props.resetFeedbackForm} postFeedback={this.props.postFeedback} />} />
               <Redirect to="/home" />
             </Switch>

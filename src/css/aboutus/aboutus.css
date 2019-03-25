@@ -5,6 +5,7 @@
 .about-us-container h2 {
     font-family: 'Vollkorn', serif;
     color: #000080;
+    text-align: center;
 }
 
 div.in-about p {
@@ -18,5 +19,9 @@ div.trust p{
 }
 
 .about {
+    margin-top: 50px;
+}
+
+.membership {
     margin-top: 50px;
 }

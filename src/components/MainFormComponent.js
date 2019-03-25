@@ -122,12 +122,15 @@ class RSAKeyGeneratorForm extends React.Component {
         message.success("Successfully Encryption");
       return (
         <div>
-          <Button type="dashed" onClick={() => this.start() }>
-            <Icon type="rocket" />Generate Keys
-          </Button>
-          <br />
-          <br />
-          {(this.state.hasRes && this.state.resBlobToDownload) ? <p>Your keys pair has been generated successfully. Press Next button to get it.</p> : null}
+          {(this.state.hasRes && this.state.resBlobToDownload) ? 
+            <p>
+              Your keys pair has been created successfully, please press Next button to download it.&nbsp;
+              <Icon type="check-circle" theme="twoTone" twoToneColor="#52c41a" />
+            </p> :
+            <Button type="dashed" size="large" onClick={() => this.start() }>
+              <Icon type="rocket" />Start to Generate
+            </Button>
+          }
         </div>
       );
     }
@@ -790,17 +793,18 @@ class FileEncryptForm extends FileCryptoForm {
         message.success("Successfully Encryption");
       return (
         <div>
-          <Button type="dashed" size="large" onClick={() => this.start() }>
-            <Icon type="rocket" />Start to Encrypt
-          </Button>
-          <br />
-          <br />
           {(this.state.hasRes && this.state.resBlobToDownload) ? 
             <p>
-              Your result.zip has been created successfully, please press Next button to download it. 
+              Your result.zip has been created successfully, please press Next button to download it.&nbsp;
               <Icon type="check-circle" theme="twoTone" twoToneColor="#52c41a" />
-            </p> : 
-            this.progressBar()}
+            </p> :
+            <Button type="dashed" size="large" onClick={() => this.start() }>
+              <Icon type="rocket" />Start to Encrypt
+            </Button>
+          }
+          <br />
+          <br />
+          {this.progressBar()}
         </div>
       );
     }
@@ -1026,17 +1030,18 @@ class FileDecryptForm extends FileCryptoForm {
         message.success("Successfully Decryption");
       return (
         <div>
-          <Button type="dashed" size="large" onClick={() => this.start() }>
-            <Icon type="rocket" />Start to Decrypt
-          </Button>
-          <br />
-          <br />
           {(this.state.hasRes && this.state.resBlobToDownload) ? 
             <p>
-              Your result file has been created successfully, please press Next button to download it.
+              Your result file has been created successfully, please press Next button to download it.&nbsp;
               <Icon type="check-circle" theme="twoTone" twoToneColor="#52c41a" />
-            </p> : 
-            this.progressBar()}
+            </p> :
+            <Button type="dashed" size="large" onClick={() => this.start() }>
+              <Icon type="rocket" />Start to Decrypt
+            </Button>
+          }
+          <br />
+          <br />
+          {this.progressBar()}
         </div>
       );
     }

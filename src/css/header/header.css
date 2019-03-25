@@ -2,32 +2,11 @@
     background-color:#000080;
 }
 
-.nav-select {
-    padding: 0;
-}
-
-.nav-select button .nav-link {
-    color: #000080 !important;
-    font-weight: bold;
-    padding: 0;
-    font-family: 'Pacifico', cursive;
+.nav-link {
+    font-size: 15px;
 }
 
 .home-link {
     font-family: 'Oswald', sans-serif;
-    font-size: 16px;
+    font-size: 17px;
 }
-
-.btn-sign-in-out {
-    color: white;
-    background-color: #20B2AA;
-    border: 0;
-    outline: 0;
-    opacity: 0.7;
-}
-
-.btn-sign-in-out:hover {
-    opacity: 1;
-    background-color: #20B2AA;
-}
-

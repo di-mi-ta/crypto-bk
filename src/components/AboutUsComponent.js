@@ -27,18 +27,6 @@ const About = () => {
                     </div>
                 </div>
             </div>
-            <div className="row col-12">
-                <div>
-                    <div>
-                        <div className="text-center membership">
-                            <h2>- Contact -</h2>
-                        </div>
-                        <div>
-                            
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };

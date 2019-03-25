@@ -10,16 +10,16 @@ function Footer(props) {
                 <div className="row justify-content-center">
                     <div className="col-md-3 col-xs-12 offset-1">
                         <h2 className="mb-0">Super Node</h2>
-                        <h2>Drive</h2>
+                        <h2>Crypto</h2>
                         <p>No hacker can beat us.</p>
                     </div>           
                     <div className="col-md-2 col-xs-12">
                         <h5>Explore</h5>
                         <ul className="list-unstyled">
                             <li><Link to="/home">Home</Link></li>
-                            <li><Link to="/algorithms">Algorithms</Link></li>
-                            <li><Link to="/keymgn">Key Mgn.</Link></li>
-                            <li><Link to="/mydrive">My Drive</Link></li>
+                            <li><Link to="/algorithm/des">DES</Link></li>
+                            <li><Link to="/algorithm/aes">AES</Link></li>
+                            <li><Link to="/algorithm/rsa">RSA</Link></li>
                             <li><Link to="/aboutus">About Us</Link></li>
                             <li><Link to="/help">Help</Link></li>
                         </ul>
@@ -35,7 +35,7 @@ function Footer(props) {
                         <h5>Business</h5>
                         <address>
                             +84 35 8684 926<br />
-                            SuperNodeDrive.com<br />
+                            SNodeCrypto.com<br />
                         </address>
                     </div>
                     <div className="col-md-4 col-xs-12 align-self-center social-icons-container">
@@ -51,7 +51,7 @@ function Footer(props) {
                 </div>
                 <div className="row justify-content-center">             
                     <div className="col-auto">
-                        <p className="mb-0">© Copyright @2019 SuperNodeDrive.com. All Rights Reserved.</p>
+                        <p className="mb-0">© Copyright @2019 SNodeCrypto.com. All Rights Reserved.</p>
                     </div>
                 </div>
             </div>
