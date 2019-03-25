@@ -31,3 +31,8 @@
 .steps-content .ant-input-password {
   max-width: 40%;
 }
+
+.steps-content .ant-progress {
+  margin: auto;
+  width: 60%;
+}

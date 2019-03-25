@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input, Steps, Button, Upload, message, Icon, Row, Col, Select } from 'antd';
+import { Form, Input, Steps, Button, Upload, message, Icon, Row, Col, Select, Popconfirm, Progress } from 'antd';
 import '../css/mainform/mainform.css';
 const CryptoJS = require('crypto-js');
 const JSZip = require('jszip');
@@ -509,6 +509,16 @@ const dataUrlToBlob = (dataURI) => {
   return blob;
 }
 
+const getExtentionOfFile = (fileName) => {
+  let lst = fileName.split('.');
+  let ext = lst[lst.length - 1];
+  let name = '';
+  for (let i = 0; i < lst.length - 1; i++){
+    name += lst[i];
+  }
+  return [ext, name];
+}
+
 const Step = Steps.Step;
 
 class FileCryptoForm extends React.Component {
@@ -522,12 +532,48 @@ class FileCryptoForm extends React.Component {
       curKeyFile: null,
       hasRes: false,
       resBlobToDownload: null,
+      popUp: true,
+      progress: 0,
+      isProcessing: false,
+      isFolder: false,
       current: 0
-    }
+    };
+    this.handleUploadFile = this.handleUploadFile.bind(this);
+    this.handleUploadFolder = this.handleUploadFolder.bind(this);
   }
 
   onDownload(){
     FileSaver.saveAs(this.state.resBlobToDownload, 'result');
+  }
+
+  handleUploadFolder() {
+    if ( this.state.curFile !== null)
+      message.warning("You can only upload one file or folder");
+    else {
+      this.setState({
+        popUp: false,
+        isFolder: true
+      });
+      document.getElementById("upload-file").click();
+      this.setState({
+        popUp: true
+      });
+    }
+  }
+
+  handleUploadFile() {
+    if ( this.state.curFile !== null)
+      message.warning("You can only upload one file or folder");
+    else {
+      this.setState({
+        popUp: false,
+        isFolder: false
+      });
+      document.getElementById("upload-file").click();
+      this.setState({
+        popUp: true
+      });
+    }
   }
 
   next() {
@@ -579,12 +625,82 @@ class FileCryptoForm extends React.Component {
       curKeyFile: null,
       hasRes: false,
       resBlobToDownload: null,
-      current: 0
+      current: 0,
+      popUp: true,
+      progress: 0,
+      isProcessing: false,
+      isFolder: false
     });
   }
 
   start() {
     
+  }
+
+  steps(cur) {
+    
+  }
+  
+  buttons(cur) {
+    if (cur === 0) {
+      return (
+        <Button type="primary" onClick={() => this.next()} disabled={this.state.curFile === null}>Next</Button>
+      )
+    }
+    else if (cur === 1) {
+      return (
+        <React.Fragment>
+          <Button type="primary" onClick={() => this.next()} disabled={this.state.curKeyFile === null}>Next</Button>
+          <Button style={{ marginLeft: 8 }} onClick={() => this.reset()}>Reset</Button>
+        </React.Fragment>
+      );
+    }
+    else if (cur === 2) {
+      return (
+        <React.Fragment>
+          <Button type="primary" onClick={() => this.next()} disabled={!this.state.hasRes || this.state.resBlobToDownload === null}>
+            Next
+          </Button>
+          <Button style={{ marginLeft: 8 }} onClick={() => this.reset()}>Reset</Button>
+        </React.Fragment>
+      );
+    }
+    else {
+      return (
+        <Button type="primary" onClick={() => this.reset()} >Done</Button>
+      )
+    }
+  }
+
+  progressBar() {
+    if (true) {
+      return <Progress percent={this.state.progress} strokeWidth={15} />;
+    }
+    return null;
+  }
+
+  render() {
+    const { current } = this.state;
+    return (
+      <div>
+        <Form>
+          <Steps current={current} direction="horizontal">
+            {this.titles.map(title => <Step key={title} title={title} />)}
+          </Steps>
+          <div className="steps-content">{this.steps(current)}</div>
+          <div className="steps-action">
+            {this.buttons(current)}
+          </div>
+        </Form>
+      </div>
+    );
+  }
+}
+
+class FileEncryptForm extends FileCryptoForm {
+  constructor(props) {
+    super(props);
+    this.titles = ['Upload file', 'Upload key file', 'Start Encrypting', 'Finish'];  
   }
 
   steps(cur) {
@@ -603,7 +719,7 @@ class FileCryptoForm extends React.Component {
             curFile: null
           })
         },
-        disabled: (this.state.curFile !== null)
+        disabled: this.state.popUp
       };
       
       if (this.state.flag === -1) {
@@ -615,11 +731,19 @@ class FileCryptoForm extends React.Component {
 
       return (
         <div>
-          <p>{ this.uploadFileSlogan }</p>
-          <Upload {...fileProps}>
-            <Button>
-              <Icon type="upload" /> Upload your file
-            </Button>
+          <p>Upload your file for encryption. If you want to encrypt a folder, please zip it and upload to here.</p>
+          <Upload id="upload-file" {...fileProps}>
+            <Popconfirm 
+              title="File or Folder?" 
+              icon={<Icon type="question-circle-o" />} 
+              okText="folder" cancelText="file"
+              onConfirm={this.handleUploadFolder} onCancel={this.handleUploadFile}
+              >
+              <Button>
+                <Icon type="upload" /> Upload your file
+              </Button>
+            </Popconfirm>
+            
           </Upload>
         </div>        
       );
@@ -662,16 +786,21 @@ class FileCryptoForm extends React.Component {
       //Upload key file
     }
     else if (cur === 2){
-      if ( this.state.hasRes && this.state.resBlobToDownload )
+      if ( this.state.hasRes && this.state.resBlobToDownload && !this.state.isProcessing)
         message.success("Successfully Encryption");
       return (
         <div>
           <Button type="dashed" size="large" onClick={() => this.start() }>
-            <Icon type="rocket" />Start to Process
+            <Icon type="rocket" />Start to Encrypt
           </Button>
           <br />
           <br />
-          {(this.state.hasRes && this.state.resBlobToDownload) ? <p>{this.finishSlogan}</p> : null}
+          {(this.state.hasRes && this.state.resBlobToDownload) ? 
+            <p>
+              Your result.zip has been created successfully, please press Next button to download it. 
+              <Icon type="check-circle" theme="twoTone" twoToneColor="#52c41a" />
+            </p> : 
+            this.progressBar()}
         </div>
       );
     }
@@ -682,94 +811,103 @@ class FileCryptoForm extends React.Component {
           <Button type="primary" size="large" onClick={() => this.onDownload()}>
             <Icon type="download" /> Download result
           </Button>
-          <Icon type="paper-clip" style={{ marginLeft: 8 }}/> <b>{this.endFile}</b>
+          <Icon type="paper-clip" style={{ marginLeft: 8 }}/> <b>result.zip</b>
         </React.Fragment>
         
       );
     }
   }
-  
-  buttons(cur) {
-    if (cur === 0) {
-      return (
-        <Button type="primary" onClick={() => this.next()} disabled={this.state.curFile === null}>Next</Button>
-      )
-    }
-    else if (cur === 1) {
-      return (
-        <React.Fragment>
-          <Button type="primary" onClick={() => this.next()} disabled={this.state.curKeyFile === null}>Next</Button>
-          <Button style={{ marginLeft: 8 }} onClick={() => this.reset()}>Reset</Button>
-        </React.Fragment>
-      );
-    }
-    else if (cur === 2) {
-      return (
-        <React.Fragment>
-          <Button type="primary" onClick={() => this.next()} disabled={!this.state.hasRes || this.state.resBlobToDownload === null}>
-            Next
-          </Button>
-          <Button style={{ marginLeft: 8 }} onClick={() => this.reset()}>Reset</Button>
-        </React.Fragment>
-      );
-    }
-    else {
-      return (
-        <Button type="primary" onClick={() => this.reset()} >Done</Button>
-      )
-    }
-  }
-
-  render() {
-    const { current } = this.state;
-    return (
-      <div>
-        <Form>
-          <Steps current={current} direction="horizontal">
-            {this.titles.map(title => <Step key={title} title={title} />)}
-          </Steps>
-          <div className="steps-content">{this.steps(current)}</div>
-          <div className="steps-action">
-            {this.buttons(current)}
-          </div>
-        </Form>
-      </div>
-    );
-  }
-}
-
-class FileEncryptForm extends FileCryptoForm {
-  constructor(props) {
-    super(props);
-    this.titles = ['Upload file', 'Upload key file', 'Start Encrypting', 'Finish'];
-    this.uploadFileSlogan = 'Upload your file for encryption. If you want to encrypt a folder, please zip it and upload to here.';
-    this.endFile = 'result.zip';
-    this.finishSlogan = 'Your result.zip has been created successfully, please press Next button to download it.';
-  }
 
   sEncrypt() {}
 
   start() {
-    const zip = JSZip();
-    let cipherText;
-    cipherText = this.sEncrypt();
-    const md5OriginFile  = getMD5(this.state.contentFileToProcess);
-    zip.file("md5.txt", md5OriginFile);
-    zip.file("cipher.txt", cipherText)
-    zip.generateAsync({type:"blob"}).then((content) => {
-      this.setState({
-        resBlobToDownload: content,
-        hasRes: true,
-      });
-    }).catch((err) =>{
-        message.error('Fail to process: ' + err);
+    this.setState({
+      isProcessing: true,
+      progress: 0
     });
+    const zip = JSZip();
+    if ( !this.state.isFolder) {
+      let cipherText;
+      cipherText = this.sEncrypt();
+      this.setState({
+        progress: 30
+      });
+      const md5OriginFile  = getMD5(this.state.contentFileToProcess);
+      this.setState({
+        progress: 50
+      });
+      zip.file("md5.txt", md5OriginFile);
+      zip.file("cipher.txt", cipherText);
+      this.setState({
+        progress: 80
+      });
+      zip.generateAsync({type:"blob"}).then((content) => {
+        this.setState({
+          resBlobToDownload: content,
+          hasRes: true,
+          progress: 100
+        });
+        this.setState({
+          isProcessing: false,
+        });
+      }).catch((err) =>{
+          message.error('Fail to process: ' + err);
+      });
+    }
+    else {
+      let bs64 = this.state.contentFileToProcess.split(',')[1];
+      zip.loadAsync(atob(bs64)).then((zip) => {
+        this.setState({
+          progress: 10
+        });
+        let resZip = JSZip();
+        let lstFile = [];
+        let lstFileName = [];
+        zip.folder().forEach((relativePath, file) => {    
+          if(!file.dir){
+            lstFile.push(zip.file(file.name).async('base64'));
+            lstFileName.push(file.name);
+          }
+        });
+        this.setState({
+          progress: 30
+        })
+        Promise.all(lstFile).then((res) => {
+          const num = lstFile.length;
+          const dis = Math.round((55 / num) * 100) / 100;
+          for (let i = 0; i < num; i++) {
+            resZip.file(getExtentionOfFile(lstFileName[i])[1] + '.txt',
+                          this.sEncrypt(res[i] + ' ' + getExtentionOfFile(lstFileName[i])[0]));
+            this.setState({
+              progress: this.state.progress + dis
+            });
+          }
+
+          resZip.generateAsync({type:"blob"}).then((content) => {
+            this.setState({
+              resBlobToDownload: content,
+              hasRes: true,
+              progress: 100,
+            });
+            this.setState({
+              isProcessing: false
+            });
+          })
+        }).catch((err) => {
+          message.error('Fail to process: ' + err);
+        });
+      })
+    }
   }
 }
+
 class DESFileEncryptForm extends FileEncryptForm {
   
   sEncrypt() {
-    const b64 = CryptoJS.DES.encrypt(this.state.contentFileToProcess, this.state.contentKeyFile).toString();
+    let plain = this.state.contentFileToProcess;
+    if (arguments.length > 0)
+      plain = arguments[0];
+    const b64 = CryptoJS.DES.encrypt(plain, this.state.contentKeyFile).toString();
     const e64 = CryptoJS.enc.Base64.parse(b64);
     return e64.toString(CryptoJS.enc.Hex);
   }
@@ -777,7 +915,10 @@ class DESFileEncryptForm extends FileEncryptForm {
 
 class AESFileEncryptForm extends FileEncryptForm {
   sEncrypt() {
-    const b64 = CryptoJS.AES.encrypt(this.state.contentFileToProcess, this.state.contentKeyFile).toString();
+    let plain = this.state.contentFileToProcess;
+    if (arguments.length > 0)
+      plain = arguments[0];
+    const b64 = CryptoJS.AES.encrypt(plain, this.state.contentKeyFile).toString();
     const e64 = CryptoJS.enc.Base64.parse(b64);
     return e64.toString(CryptoJS.enc.Hex);
   }
@@ -785,7 +926,10 @@ class AESFileEncryptForm extends FileEncryptForm {
 
 class RSAFileEncryptForm extends FileEncryptForm {
   sEncrypt() {
-    return cryptico.encrypt(this.state.contentFileToProcess, this.state.contentKeyFile).cipher;
+    let plain = this.state.contentFileToProcess;
+    if (arguments.length > 0)
+      plain = arguments[0];
+    return cryptico.encrypt(plain, this.state.contentKeyFile).cipher;
   }
 }
 
@@ -793,37 +937,212 @@ class FileDecryptForm extends FileCryptoForm {
   constructor(props) {
     super(props);
     this.titles = ['Upload zip file', 'Upload key file', 'Start Decrypting', 'Finish'];
-    this.uploadFileSlogan = 'Upload your zip file for dcryption. That zip must contains two files as cipher and md5 hash.';
-    this.finishSlogan = 'Your result file has been created successfully, please press Next button to download it.';
-    this.endFile = 'result.xyz';
   }
 
+  steps(cur) {
+    if (cur === 0) {
+      //Upload file
+      const fileProps = {
+        name: 'mainfile',
+        beforeUpload: (file) => {
+          this.setState({
+            curFile: file
+          });
+          return false;
+        },
+        onRemove: (file) => {
+          this.setState({
+            curFile: null
+          })
+        },
+        disabled: this.state.popUp
+      };
+      
+      if (this.state.flag === -1) {
+        fileProps.fileList = [];
+        this.setState({
+          flag: 0
+        });
+      }
+
+      return (
+        <div>
+          <p>Upload your zip file for decryption. That zip must contains two files as cipher and md5 hash.</p>
+          <Upload id="upload-file" {...fileProps}>
+            <Popconfirm 
+              title="File or Folder?" 
+              icon={<Icon type="question-circle-o" />} 
+              okText="folder" cancelText="file"
+              onConfirm={this.handleUploadFolder} onCancel={this.handleUploadFile}
+              >
+              <Button>
+                <Icon type="upload" /> Upload your file
+              </Button>
+            </Popconfirm>
+            
+          </Upload>
+        </div>        
+      );
+    }
+    else if (cur === 1) {
+      const keyProps = {
+        name: 'keyfile',
+        beforeUpload: (file) => {
+          this.setState({
+            curKeyFile: file,
+          });
+          return false;
+        },
+        onRemove: (file) => {
+          this.setState({
+            curKeyFile: null
+          })
+        },
+        disabled: (this.state.curKeyFile !== null),
+      };
+
+      if (this.state.flag === 0)
+      {  
+        keyProps.fileList = [];
+        this.setState({
+          flag: -1
+        });
+      }
+
+      return (
+        <div>
+          <p>Upload your key file here.</p>
+          <Upload {...keyProps}>
+            <Button>
+              <Icon type="upload" /> Upload your key
+            </Button>
+          </Upload>
+        </div>
+      );
+      //Upload key file
+    }
+    else if (cur === 2){
+      if ( this.state.hasRes && this.state.resBlobToDownload && !this.state.isProcessing)
+        message.success("Successfully Decryption");
+      return (
+        <div>
+          <Button type="dashed" size="large" onClick={() => this.start() }>
+            <Icon type="rocket" />Start to Decrypt
+          </Button>
+          <br />
+          <br />
+          {(this.state.hasRes && this.state.resBlobToDownload) ? 
+            <p>
+              Your result file has been created successfully, please press Next button to download it.
+              <Icon type="check-circle" theme="twoTone" twoToneColor="#52c41a" />
+            </p> : 
+            this.progressBar()}
+        </div>
+      );
+    }
+    else {
+      //download file
+      return (
+        <React.Fragment>
+          <Button type="primary" size="large" onClick={() => this.onDownload()}>
+            <Icon type="download" /> Download result
+          </Button>
+          <Icon type="paper-clip" style={{ marginLeft: 8 }}/> <b>result.xyz</b>
+        </React.Fragment>
+        
+      );
+    }
+  }
+  
   sDecrypt(cipher) {}
 
   start() {
-    const zip = JSZip();
-    let bs64 = this.state.contentFileToProcess.split(',')[1];
-    zip.loadAsync(atob(bs64)).then((zip) => {
-        // read file md5.txt to get md5 hash value of origin file 
-        zip.file("md5.txt").async("string").then((md5) => {
-          // read file cipher.txt to get ciphertext 
-          zip.file("cipher.txt").async("string").then((cipherText) => {
-            const plain = this.sDecrypt(cipherText); 
-            //decrypt 
-            if (plain !== null) {
-              if (md5 === getMD5(plain)) {
-                message.success('Correct MD5 hash value');
-              }
-              this.setState({
-                resBlobToDownload: dataUrlToBlob(plain),
-                hasRes: true,
-              })
-            }
-          })
-        })
-    }).catch((err) => {
-      message.error("Fail to processing " + err);
+    this.setState({
+      progress: 0,
+      isProcessing: true
     })
+    const zip = JSZip();
+    if (!this.state.isFolder) {
+      let bs64 = this.state.contentFileToProcess.split(',')[1];
+      zip.loadAsync(atob(bs64)).then((zip) => {
+          // read file md5.txt to get md5 hash value of origin file 
+          zip.file("md5.txt").async("string").then((md5) => {
+            // read file cipher.txt to get ciphertext 
+            zip.file("cipher.txt").async("string").then((cipherText) => {
+              this.setState({
+                progress: 20
+              });
+              const plain = this.sDecrypt(cipherText); 
+              //decrypt 
+              this.setState({
+                progress: 70
+              });
+              if (plain !== null) {
+                if (md5 === getMD5(plain)) {
+                  message.success('Correct MD5 hash value');
+                  this.setState({
+                    progress: 80
+                  });
+                }
+                this.setState({
+                  resBlobToDownload: dataUrlToBlob(plain),
+                  hasRes: true,
+                  progress: 100
+                })
+              }
+            });
+            this.setState({
+              isProcessing: false
+            });
+          })
+      }).catch((err) => {
+        message.error("Fail to processing " + err);
+      });
+    }
+    else {
+      let bs64 = this.state.contentFileToProcess.split(',')[1];
+      zip.loadAsync(atob(bs64)).then((zip) => {
+        this.setState({
+          progress: 10
+        });
+        let resZip = JSZip();
+        let lstFile = [];
+        let lstFileName = [];
+        zip.folder().forEach((relativePath, file) => {    
+          if(!file.dir){
+            lstFile.push(zip.file(file.name).async('string'));
+            lstFileName.push(file.name);
+          }
+        });
+        this.setState({
+          progress: 20
+        });
+        Promise.all(lstFile).then((res) => {
+          const num = lstFile.length;
+          const dis = Math.round((65 / num) * 100) / 100;
+          for (let i = 0; i < num; i++){      
+            res[i] = this.sDecrypt(res[i]);
+            let ext = res[i].split(' ')[1];
+            resZip.file(getExtentionOfFile(lstFileName[i])[1] + '.' + ext, res[i].split(' ')[0],{base64: true});
+            this.setState({
+              progress: this.state.progress + dis
+            });
+          }
+          resZip.generateAsync({type:"blob"}).then((content) => {
+            this.setState({
+              resBlobToDownload: content,
+              hasRes: true,
+              progress: 100
+            });
+            this.setState({
+              isProcessing: false
+            });
+          })
+        }).catch((err) => {
+            message.error("Fail to processing " + err);
+        });
+      });  
+    }
   }
 }
 
