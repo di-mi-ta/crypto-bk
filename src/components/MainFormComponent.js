@@ -279,24 +279,20 @@ class DESDirectEncryptForm extends DirectEncryptForm {
 
   handlePlainChange(event) {
     const plain = event.target.value;
-    if (plain === ''){
-      this.setState({
-        plain: '',
-        cipher: ''
-      })
-    }
-    else {
-      const res = CryptoJS.DES.encrypt(plain, this.state.key);
-      this.setState({
-          plain: plain,
-          cipher: res
-      });
-    }
+    const b64 = CryptoJS.DES.encrypt(plain, this.state.key).toString();
+    const e64 = CryptoJS.enc.Base64.parse(b64);
+    const res  = e64.toString(CryptoJS.enc.Hex);
+    this.setState({
+        plain: plain,
+        cipher: res
+    });
   }
 
   handleKeyChange(event) {
     const key = event.target.value;
-    const res = CryptoJS.DES.encrypt(this.state.plain, key)
+    const b64 = CryptoJS.DES.encrypt(this.state.plain, key).toString();
+    const e64 = CryptoJS.enc.Base64.parse(b64);
+    const res  = e64.toString(CryptoJS.enc.Hex);
     this.setState({
         key: key,
         cipher: res
@@ -313,24 +309,20 @@ class AESDirectEncryptForm extends DirectEncryptForm {
 
   handlePlainChange(event) {
     const plain = event.target.value;
-    if (plain === ''){
-      this.setState({
-        plain: '',
-        cipher: ''
-      })
-    }
-    else {
-      const res = CryptoJS.AES.encrypt(plain, this.state.key)
-      this.setState({
-          plain: plain,
-          cipher: res
-      });
-    }
+    const b64 = CryptoJS.AES.encrypt(plain, this.state.key).toString();
+    const e64 = CryptoJS.enc.Base64.parse(b64);
+    const res  = e64.toString(CryptoJS.enc.Hex);
+    this.setState({
+        plain: plain,
+        cipher: res
+    });
   }
 
   handleKeyChange(event) {
     const key = event.target.value;
-    const res = CryptoJS.AES.encrypt(this.state.plain, key)
+    const b64 = CryptoJS.AES.encrypt(this.state.plain, key).toString();
+    const e64 = CryptoJS.enc.Base64.parse(b64);
+    const res  = e64.toString(CryptoJS.enc.Hex);
     this.setState({
         key: key,
         cipher: res
@@ -347,24 +339,22 @@ class DESDirectDecryptForm extends DirectDecryptForm {
 
   handleCipherChange(event) {
     const cipher = event.target.value;
-    if (cipher === ''){
-      this.setState({
-        cipher: '',
-        plain: ''
-      })
-    }
-    else {
-      const res = CryptoJS.DES.decrypt(cipher, this.state.key).toString(CryptoJS.enc.Utf8);
-      this.setState({
-          cipher: cipher,
-          plain: res
-      });
-    }
+    const reb64 = CryptoJS.enc.Hex.parse(cipher);
+    const bytes = reb64.toString(CryptoJS.enc.Base64);
+    const decrypt = CryptoJS.DES.decrypt(bytes, this.state.key);
+    const res = (decrypt !== null) ? decrypt.toString(CryptoJS.enc.Utf8) : 'Not valid';
+    this.setState({
+        cipher: cipher,
+        plain: res
+    });
   }
 
   handleKeyChange(event) {
     const key = event.target.value;
-    const res = CryptoJS.DES.decrypt(this.state.cipher, key).toString(CryptoJS.enc.Utf8);
+    const reb64 = CryptoJS.enc.Hex.parse(this.state.cipher);
+    const bytes = reb64.toString(CryptoJS.enc.Base64);
+    const decrypt = CryptoJS.DES.decrypt(bytes, key);
+    const res = (decrypt !== null) ? decrypt.toString(CryptoJS.enc.Utf8) : 'Not valid';
     this.setState({
         key: key,
         plain: res
@@ -381,24 +371,22 @@ class AESDirectDecryptForm extends DirectDecryptForm {
 
   handleCipherChange(event) {
     const cipher = event.target.value;
-    if (cipher === ''){
-      this.setState({
-        cipher: '',
-        plain: ''
-      })
-    }
-    else {
-      const res = CryptoJS.AES.decrypt(cipher, this.state.key).toString(CryptoJS.enc.Utf8);
-      this.setState({
-          cipher: cipher,
-          plain: res
-      });
-    }
+    const reb64 = CryptoJS.enc.Hex.parse(cipher);
+    const bytes = reb64.toString(CryptoJS.enc.Base64);
+    const decrypt = CryptoJS.AES.decrypt(bytes, this.state.key);
+    const res = (decrypt !== null) ? decrypt.toString(CryptoJS.enc.Utf8) : 'Not valid';
+    this.setState({
+        cipher: cipher,
+        plain: res
+    });
   }
 
   handleKeyChange(event) {
     const key = event.target.value;
-    const res = CryptoJS.AES.decrypt(this.state.cipher, key).toString(CryptoJS.enc.Utf8);
+    const reb64 = CryptoJS.enc.Hex.parse(this.state.cipher);
+    const bytes = reb64.toString(CryptoJS.enc.Base64);
+    const decrypt = CryptoJS.AES.decrypt(bytes, key);
+    const res = (decrypt !== null) ? decrypt.toString(CryptoJS.enc.Utf8) : 'Not valid';
     this.setState({
         key: key,
         plain: res
@@ -793,11 +781,16 @@ class FileEncryptForm extends FileCryptoForm {
         message.success("Successfully Encryption");
       return (
         <div>
+          <Button type="dashed" size="large" onClick={() => this.start() }>
+            <Icon type="rocket" />Start to Encrypt
+          </Button>
+          <br />
+          <br />
           {(this.state.hasRes && this.state.resBlobToDownload) ? 
             <p>
-              Your result.zip has been created successfully, please press Next button to download it.&nbsp;
+               Your result.zip has been created successfully, please press Next button to download it.&nbsp; 
               <Icon type="check-circle" theme="twoTone" twoToneColor="#52c41a" />
-            </p> :
+              </p> :
             <Button type="dashed" size="large" onClick={() => this.start() }>
               <Icon type="rocket" />Start to Encrypt
             </Button>
@@ -880,8 +873,10 @@ class FileEncryptForm extends FileCryptoForm {
           const num = lstFile.length;
           const dis = Math.round((55 / num) * 100) / 100;
           for (let i = 0; i < num; i++) {
-            resZip.file(getExtentionOfFile(lstFileName[i])[1] + '.txt',
-                          this.sEncrypt(res[i] + ' ' + getExtentionOfFile(lstFileName[i])[0]));
+            const fullNameFile = getExtentionOfFile(lstFileName[i]);
+            const fileName = fullNameFile[1]; 
+            const tailFile = fullNameFile[0];
+            resZip.file(fileName + '.txt', this.sEncrypt(res[i] + ' ' + tailFile) + ' ' + getMD5(res[i]));
             this.setState({
               progress: this.state.progress + dis
             });
@@ -1030,11 +1025,16 @@ class FileDecryptForm extends FileCryptoForm {
         message.success("Successfully Decryption");
       return (
         <div>
+          <Button type="dashed" size="large" onClick={() => this.start() }>
+            <Icon type="rocket" />Start to Decrypt
+          </Button>
+          <br />
+          <br />
           {(this.state.hasRes && this.state.resBlobToDownload) ? 
             <p>
               Your result file has been created successfully, please press Next button to download it.&nbsp;
               <Icon type="check-circle" theme="twoTone" twoToneColor="#52c41a" />
-            </p> :
+              </p> :
             <Button type="dashed" size="large" onClick={() => this.start() }>
               <Icon type="rocket" />Start to Decrypt
             </Button>
@@ -1122,13 +1122,27 @@ class FileDecryptForm extends FileCryptoForm {
         this.setState({
           progress: 20
         });
-        Promise.all(lstFile).then((res) => {
+        Promise.all(lstFile)
+        .then((res) => {
           const num = lstFile.length;
           const dis = Math.round((65 / num) * 100) / 100;
-          for (let i = 0; i < num; i++){      
-            res[i] = this.sDecrypt(res[i]);
-            let ext = res[i].split(' ')[1];
-            resZip.file(getExtentionOfFile(lstFileName[i])[1] + '.' + ext, res[i].split(' ')[0],{base64: true});
+          for (let i = 0; i < num; i++){    
+            const fullNameFile = getExtentionOfFile(lstFileName[i]);
+            const fileName = fullNameFile[1]; 
+            const tailFile = fullNameFile[0]; 
+            res[i] = res[i].split(' ');
+            const cipher = res[i][0];
+            const md5 = res[i][1];
+            const plain = this.sDecrypt(cipher);
+            let ext = plain.split(' ')[1];
+            let file = plain.split(' ')[0];
+            if (getMD5(file) === md5 ){
+              resZip.file(fileName + '.' + ext, file ,{base64: true});
+              message.success('Check MD5 hash value of file ' + fileName + '.' + tailFile + 'CORRECT');
+            }
+            else {
+              message.error('Check MD5 hash value of file ' + fileName + '.' + tailFile + 'FAILED');
+            }
             this.setState({
               progress: this.state.progress + dis
             });

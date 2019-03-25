@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Contact from './ContactComponent';
 import Header from './HeaderComponent';
 import Footer from './FooterComponent';
 // import MainForm from './MainFormComponent';
@@ -27,24 +26,12 @@ const mapDispatchToProps = (dispatch) => ({
 
 class Main extends Component {
   render() {
-    const PrivateRoute = ({ component: Component, ...rest }) => (
-      <Route {...rest} render={(props) => (
-        this.props.auth.isAuthenticated
-          ? <Component {...props} />
-          : <Redirect to={{
-              pathname: '/home',
-              state: { from: props.location }
-            }} />
-      )} />
-    );
-
     return (
       <div>
         <Header auth={this.props.auth} 
           loginUser={this.props.loginUser} 
           logoutUser={this.props.logoutUser} 
           />   
-        {/* <MainForm/> */}
         <TransitionGroup>
           <CSSTransition key={this.props.location.key} classNames="page" timeout={300}>
             <Switch>
@@ -53,7 +40,6 @@ class Main extends Component {
               <Route exact path="/algorithm/aes" component={AESAlgorithm} />
               <Route exact path="/algorithm/rsa" component={RSAAlgorithm} />
               <Route exact path="/aboutus" component={() => <About />} />
-              <Route exact path="/" component={() => <Contact resetFeedbackForm={this.props.resetFeedbackForm} postFeedback={this.props.postFeedback} />} />
               <Redirect to="/home" />
             </Switch>
           </CSSTransition>

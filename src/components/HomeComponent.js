@@ -20,7 +20,7 @@ function Home(props) {
                 <div style={{height: 500}}>
                     <div style={inlineStyle}>
                         <div className="super-node">
-                            <span>Super-Node Drive</span>
+                            <span>Snode-Crypto</span>
                         </div>
                         <div className="home-slogan">
                             <p>
