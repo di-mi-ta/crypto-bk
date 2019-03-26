@@ -17,7 +17,7 @@ function Footer(props) {
                         <h5>Explore</h5>
                         <ul className="list-unstyled">
                             <li><Link to="/home">Home</Link></li>
-                            <li><Link to="/algorithm/des">DES</Link></li>
+                            <li><Link to="/algorithm/rabbit">RABBIT</Link></li>
                             <li><Link to="/algorithm/aes">AES</Link></li>
                             <li><Link to="/algorithm/rsa">RSA</Link></li>
                             <li><Link to="/aboutus">About Us</Link></li>

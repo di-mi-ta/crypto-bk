@@ -270,7 +270,7 @@ class DirectDecryptForm extends React.Component {
   }
 }
 
-class DESDirectEncryptForm extends DirectEncryptForm {
+class RabbitDirectEncryptForm extends DirectEncryptForm {
   constructor(props) {
     super(props);
     this.handlePlainChange = this.handlePlainChange.bind(this);
@@ -279,7 +279,7 @@ class DESDirectEncryptForm extends DirectEncryptForm {
 
   handlePlainChange(event) {
     const plain = event.target.value;
-    const b64 = CryptoJS.DES.encrypt(plain, this.state.key).toString();
+    const b64 = CryptoJS.Rabbit.encrypt(plain, this.state.key).toString();
     const e64 = CryptoJS.enc.Base64.parse(b64);
     const res  = e64.toString(CryptoJS.enc.Hex);
     this.setState({
@@ -290,7 +290,7 @@ class DESDirectEncryptForm extends DirectEncryptForm {
 
   handleKeyChange(event) {
     const key = event.target.value;
-    const b64 = CryptoJS.DES.encrypt(this.state.plain, key).toString();
+    const b64 = CryptoJS.Rabbit.encrypt(this.state.plain, key).toString();
     const e64 = CryptoJS.enc.Base64.parse(b64);
     const res  = e64.toString(CryptoJS.enc.Hex);
     this.setState({
@@ -330,7 +330,7 @@ class AESDirectEncryptForm extends DirectEncryptForm {
   }
 }
 
-class DESDirectDecryptForm extends DirectDecryptForm {
+class RabbitDirectDecryptForm extends DirectDecryptForm {
   constructor(props) {
     super(props);
     this.handleCipherChange = this.handleCipherChange.bind(this);
@@ -345,7 +345,7 @@ class DESDirectDecryptForm extends DirectDecryptForm {
     try{
       const reb64 = CryptoJS.enc.Hex.parse(cipher);
       const bytes = reb64.toString(CryptoJS.enc.Base64);
-      const decrypt = CryptoJS.DES.decrypt(bytes, this.state.key);
+      const decrypt = CryptoJS.Rabbit.decrypt(bytes, this.state.key);
       if (isUtf8(decrypt)){
         const res = (decrypt !== null) ? decrypt.toString(CryptoJS.enc.Utf8) : '';
         this.setState({
@@ -366,7 +366,7 @@ class DESDirectDecryptForm extends DirectDecryptForm {
     try{
       const reb64 = CryptoJS.enc.Hex.parse(this.state.cipher);
       const bytes = reb64.toString(CryptoJS.enc.Base64);
-      const decrypt = CryptoJS.DES.decrypt(bytes, key);
+      const decrypt = CryptoJS.Rabbit.decrypt(bytes, key);
       if (isUtf8(decrypt)){
         const res = (decrypt !== null) ? decrypt.toString(CryptoJS.enc.Utf8) : '';
         this.setState({
@@ -934,13 +934,13 @@ class FileEncryptForm extends FileCryptoForm {
   }
 }
 
-class DESFileEncryptForm extends FileEncryptForm {
+class RabbitFileEncryptForm extends FileEncryptForm {
   
   sEncrypt() {
     let plain = this.state.contentFileToProcess;
     if (arguments.length > 0)
       plain = arguments[0];
-    const b64 = CryptoJS.DES.encrypt(plain, this.state.contentKeyFile).toString();
+    const b64 = CryptoJS.Rabbit.encrypt(plain, this.state.contentKeyFile).toString();
     const e64 = CryptoJS.enc.Base64.parse(b64);
     return e64.toString(CryptoJS.enc.Hex);
   }
@@ -1197,11 +1197,11 @@ class FileDecryptForm extends FileCryptoForm {
   }
 }
 
-class DESFileDecryptForm extends FileDecryptForm {
+class RabbitFileDecryptForm extends FileDecryptForm {
   sDecrypt(cipher) {
     const reb64 = CryptoJS.enc.Hex.parse(cipher);
     const bytes = reb64.toString(CryptoJS.enc.Base64);
-    const decrypt = CryptoJS.DES.decrypt(bytes, this.state.contentKeyFile);
+    const decrypt = CryptoJS.Rabbit.decrypt(bytes, this.state.contentKeyFile);
     return (decrypt !== null) ? decrypt.toString(CryptoJS.enc.Utf8) : null;
   }
 }
@@ -1223,6 +1223,6 @@ class RSAFileDecryptForm extends FileDecryptForm {
   }
 }
 
-export { DESDirectEncryptForm, AESDirectEncryptForm, DESDirectDecryptForm, AESDirectDecryptForm, 
-          DESFileEncryptForm, AESFileEncryptForm, DESFileDecryptForm, AESFileDecryptForm,
+export { RabbitDirectEncryptForm, AESDirectEncryptForm, RabbitDirectDecryptForm, AESDirectDecryptForm, 
+          RabbitFileEncryptForm, AESFileEncryptForm, RabbitFileDecryptForm, AESFileDecryptForm,
           RSADirectDecryptForm, RSADirectEncryptForm, RSAFileEncryptForm, RSAFileDecryptForm, RSAKeyGeneratorForm };

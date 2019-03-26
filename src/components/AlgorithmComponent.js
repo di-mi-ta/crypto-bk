@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import '../css/algo/algo.css';
 import { Tabs, Radio, Switch, Button } from 'antd';
-import { DESDirectEncryptForm, AESDirectEncryptForm, DESDirectDecryptForm, AESDirectDecryptForm,
-        DESFileEncryptForm, AESFileEncryptForm, AESFileDecryptForm, DESFileDecryptForm,
+import { RabbitDirectEncryptForm, AESDirectEncryptForm, RabbitDirectDecryptForm, AESDirectDecryptForm,
+        RabbitFileEncryptForm, AESFileEncryptForm, AESFileDecryptForm, RabbitFileDecryptForm,
         RSADirectDecryptForm, RSADirectEncryptForm, RSAFileDecryptForm, RSAFileEncryptForm, RSAKeyGeneratorForm } from './MainFormComponent';
 const TabPane = Tabs.TabPane;
 
@@ -148,7 +148,7 @@ class AssymmetricAlgorithm extends SuperNodeAlgorithm {
     }
 }
 
-class DESAlgorithm extends SymmetricAlgorithm {
+class RabbitAlgorithm extends SymmetricAlgorithm {
 
     constructor(props) {
         super(props);   
@@ -156,31 +156,31 @@ class DESAlgorithm extends SymmetricAlgorithm {
 
     componentDidMount() {
         this.setState({
-            type: 'DES',
-            ref: 'https://en.wikipedia.org/wiki/Data_Encryption_Standard'
+            type: 'RABBIT',
+            ref: 'https://en.wikipedia.org/wiki/Rabbit_(cipher)'
         });
     }
 
     directCryptoTab() {
         if ( !this.state.directDecrypt )
             return (
-                <DESDirectEncryptForm />
+                <RabbitDirectEncryptForm />
             );
         else
             return (
-                <DESDirectDecryptForm />
+                <RabbitDirectDecryptForm />
             );
     }
 
     fileCryptoTab() {
         if ( !this.state.fileDecrypt ) {
             return (
-                <DESFileEncryptForm />
+                <RabbitFileEncryptForm />
             );
         }
         else {
             return (
-                <DESFileDecryptForm />
+                <RabbitFileDecryptForm />
             );
         }
     }
@@ -233,7 +233,7 @@ class RSAAlgorithm extends AssymmetricAlgorithm {
     componentDidMount() {
         this.setState({
             type: 'RSA',
-            ref: 'https://en.wikipedia.org/wiki/Advanced_Encryption_Standard'
+            ref: 'https://en.wikipedia.org/wiki/RSA_(cryptosystem)'
         });
     }
 
@@ -268,4 +268,4 @@ class RSAAlgorithm extends AssymmetricAlgorithm {
     }
 }
 
-export { DESAlgorithm, AESAlgorithm, RSAAlgorithm };
+export { RabbitAlgorithm, AESAlgorithm, RSAAlgorithm };
